@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CodexEntry" load_steps=2 format=3 uid="uid://btres_gr0001"]
+
+[ext_resource type="Script" path="res://scripts/ui/codex_entry.gd" id="1_codex"]
+
+[resource]
+script = ExtResource("1_codex")
+entry_id = "general_relativity"
+entry_name = "广义相对论"
+description = "引力即时空的弯曲。质量告诉时空如何弯曲，时空告诉物体如何运动。"
+category = "general_relativity"
+is_hidden = false

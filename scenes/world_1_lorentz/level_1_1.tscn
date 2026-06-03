@@ -1,0 +1,69 @@
+[gd_scene load_steps=6 format=3 uid="uid://blevel11001"]
+
+[ext_resource type="Script" path="res://scenes/world_1_lorentz/level_1_1.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/objects/moving_platform.gd" id="2_mp"]
+[ext_resource type="Script" path="res://scripts/objects/time_fragment.gd" id="3_tf"]
+
+[sub_resource type="RectangleShape2D" id="RectFloor_L"]
+size = Vector2(400, 32)
+
+[sub_resource type="RectangleShape2D" id="RectFloor_R"]
+size = Vector2(440, 32)
+
+[sub_resource type="RectangleShape2D" id="RectMP"]
+size = Vector2(80, 16)
+
+[node name="Level1_1" type="Node2D"]
+script = ExtResource("1_ctrl")
+
+; -------- 左侧地面 (x=0~400) --------
+[node name="FloorLeft" type="StaticBody2D" parent="."]
+position = Vector2(200, 620)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FloorLeft"]
+shape = SubResource("RectFloor_L")
+
+[node name="Visual" type="ColorRect" parent="FloorLeft"]
+size = Vector2(400, 32)
+color = Color(0.35, 0.35, 0.45, 1)
+
+; -------- 右侧地面 (x=840~1280) --------
+[node name="FloorRight" type="StaticBody2D" parent="."]
+position = Vector2(1060, 620)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FloorRight"]
+shape = SubResource("RectFloor_R")
+
+[node name="Visual" type="ColorRect" parent="FloorRight"]
+size = Vector2(440, 32)
+color = Color(0.35, 0.35, 0.45, 1)
+
+; -------- 移动平台（缺口上方周期往返） --------
+; 缺口范围 x=400~840，平台在 [420, 820] 区间往返
+[node name="MovingPlatform" type="AnimatableBody2D" parent="."]
+position = Vector2(420, 590)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("2_mp")
+travel_offset = Vector2(400, 0)
+cycle_duration = 8.0
+pause_time = 1.5
+platform_color = Color(0.4, 0.8, 0.4, 0.9)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MovingPlatform"]
+shape = SubResource("RectMP")
+
+; -------- 时空碎片终点 (x=1100) --------
+[node name="TimeFragment" type="Area2D" parent="."]
+position = Vector2(1100, 590)
+collision_layer = 1
+collision_mask = 2
+script = ExtResource("3_tf")
+codex_id = "time_dilation"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TimeFragment"]
+shape = SubResource("RectMP")

@@ -1,0 +1,17 @@
+# Godot 4.x 工程忽略规则
+.godot/
+*.translation
+*.import
+
+# 导出产物
+export/
+build/
+
+# 临时文件
+*.tmp
+*.bak
+~$*
+
+# OS 生成文件
+Thumbs.db
+.DS_Store

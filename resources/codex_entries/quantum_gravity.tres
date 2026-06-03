@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CodexEntry" load_steps=2 format=3 uid="uid://btres_qg0001"]
+
+[ext_resource type="Script" path="res://scripts/ui/codex_entry.gd" id="1_codex"]
+
+[resource]
+script = ExtResource("1_codex")
+entry_id = "quantum_gravity"
+entry_name = "量子引力"
+description = "在普朗克尺度下，时空不再是光滑的连续体，而是不断涨落的量子泡沫。"
+category = "quantum_gravity"
+is_hidden = false

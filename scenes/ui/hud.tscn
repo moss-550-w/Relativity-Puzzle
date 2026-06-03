@@ -1,0 +1,45 @@
+[gd_scene load_steps=2 format=3 uid="uid://bhud000001"]
+
+[ext_resource type="Script" path="res://scripts/ui/relative_clock.gd" id="1_clock"]
+
+[node name="HUD" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_clock")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+anchors_preset = 2
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -800.0
+offset_bottom = 86.0
+
+[node name="ScaleLabel" type="Label" parent="VBox"]
+text = "场景时间: ×1.00"
+add_theme_font_size_override("font_size", 18)
+
+[node name="SpeedLabel" type="Label" parent="VBox"]
+text = "速度: 0.0% c"
+add_theme_font_size_override("font_size", 14)
+
+[node name="ToastLabel" type="Label" parent="."]
+visible = false
+anchors_preset = 8
+anchor_bottom = 1.0
+anchor_right = 1.0
+offset_left = 40.0
+offset_top = -120.0
+offset_right = -40.0
+offset_bottom = -80.0
+horizontal_alignment = 1
+vertical_alignment = 1
+add_theme_font_size_override("font_size", 22)
+default_font_color = Color(1, 0.95, 0.3, 1)
+
+[node name="ToastTimer" type="Timer" parent="."]
+one_shot = true
+wait_time = 3.0
+
+[connection signal="timeout" from="ToastTimer" to="." method="_on_toast_timer_timeout"]

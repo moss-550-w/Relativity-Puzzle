@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CodexEntry" load_steps=2 format=3 uid="uid://btres_sr0001"]
+
+[ext_resource type="Script" path="res://scripts/ui/codex_entry.gd" id="1_codex"]
+
+[resource]
+script = ExtResource("1_codex")
+entry_id = "special_relativity"
+entry_name = "狭义相对论"
+description = "物理定律在所有惯性系中相同，光速恒定不变。运动改变的是时间与空间的测量，而非规律本身。"
+category = "special_relativity"
+is_hidden = false
