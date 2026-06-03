@@ -59,6 +59,26 @@ const LEVEL_REGISTRY: Dictionary = {
 }
 
 
+# ---- 小游戏注册表 ----
+
+const MINIGAME_REGISTRY: Dictionary = {
+	"light_clock": {
+		"name": "光钟工坊",
+		"subtitle": "爱因斯坦光钟思想实验",
+		"scene": "res://scenes/minigames/light_clock.tscn",
+		"codex": "light_clock",
+		"color": Color(0.3, 0.8, 1.0),
+	},
+	"wormhole_engineer": {
+		"name": "虫洞工程师",
+		"subtitle": "构建可穿越的时空捷径",
+		"scene": "res://scenes/minigames/wormhole_engineer.tscn",
+		"codex": "traversable_wormhole",
+		"color": Color(0.6, 0.4, 1.0),
+	},
+}
+
+
 # ---- 状态 ----
 
 var current_world: World = World.WORLD_1_LORENTZ
@@ -72,6 +92,9 @@ var double_jump_unlocked: bool = false
 
 ## 已完成关卡：{ World: [level_id, ...] }
 var completed_levels: Dictionary = {}
+
+## 已完成小游戏：["light_clock", ...]
+var completed_minigames: Array = []
 
 
 # ---- 信号 ----
@@ -158,9 +181,21 @@ func has_any_progress() -> bool:
 ## 重置所有进度（新游戏）
 func reset_progress() -> void:
 	completed_levels.clear()
+	completed_minigames.clear()
 	current_world = World.WORLD_1_LORENTZ
 	current_level = 1
 	double_jump_unlocked = false
+
+
+# ---- 小游戏 ----
+
+func is_minigame_completed(mg_id: String) -> bool:
+	return completed_minigames.has(mg_id)
+
+
+func mark_minigame_completed(mg_id: String) -> void:
+	if not completed_minigames.has(mg_id):
+		completed_minigames.append(mg_id)
 
 
 # ---- 谜题 / 关卡操作 ----

@@ -97,6 +97,16 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "如果时间不是基本量，那么'流动'的感觉从何而来？也许时间只是意识为理解块状宇宙而创造的故事。",
 		"category": "entropy_cosmology"
 	},
+	"light_clock": {
+		"name": "光钟与时间膨胀",
+		"desc": "爱因斯坦的光钟思想实验：运动中的光钟——光子走斜边——比静止的走得慢。时间膨胀不是钟的误差，是时空本身的几何。",
+		"category": "special_relativity"
+	},
+	"traversable_wormhole": {
+		"name": "可穿越虫洞",
+		"desc": "虫洞是时空的捷径，但维持其开启需要负能量——卡西米尔效应是已知唯一能产生负能量的物理机制。没有负能量，虫洞在形成瞬间就会坍缩。",
+		"category": "general_relativity"
+	},
 }
 
 # ---- 状态 ----

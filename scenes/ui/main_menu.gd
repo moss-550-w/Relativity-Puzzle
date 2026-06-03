@@ -4,8 +4,8 @@ extends Control
 
 
 const ENTRY_ORDER: Array[String] = [
-	"time_dilation", "light_speed_barrier", "light_cone", "twin_paradox",
-	"gravitational_time_dilation", "wormhole", "ctc", "grandfather_paradox",
+	"time_dilation", "light_speed_barrier", "light_clock", "light_cone", "twin_paradox",
+	"gravitational_time_dilation", "wormhole", "traversable_wormhole", "ctc", "grandfather_paradox",
 	"kerr_black_hole", "ergosphere", "ring_singularity",
 	"casimir_effect", "quantum_vacuum", "chronology_protection",
 	"entropy_arrow", "block_universe", "wheeler_dewitt", "time_illusion",
@@ -20,8 +20,8 @@ const CATEGORIES: Array[Dictionary] = [
 
 # 词条所属分类
 const ENTRY_CATEGORY: Dictionary = {
-	"time_dilation": 0, "light_speed_barrier": 0, "light_cone": 0, "twin_paradox": 0,
-	"gravitational_time_dilation": 1, "wormhole": 1, "ctc": 1, "grandfather_paradox": 1,
+	"time_dilation": 0, "light_speed_barrier": 0, "light_clock": 0, "light_cone": 0, "twin_paradox": 0,
+	"gravitational_time_dilation": 1, "wormhole": 1, "traversable_wormhole": 1, "ctc": 1, "grandfather_paradox": 1,
 	"kerr_black_hole": 1, "ergosphere": 1, "ring_singularity": 1,
 	"casimir_effect": 2, "quantum_vacuum": 2, "chronology_protection": 2,
 	"entropy_arrow": 3, "block_universe": 3, "wheeler_dewitt": 3, "time_illusion": 3,
@@ -517,6 +517,8 @@ func _entry_fallback(entry_id: String) -> Dictionary:
 		"block_universe": {"name": "块状宇宙", "desc": "", "category": "entropy_cosmology"},
 		"wheeler_dewitt": {"name": "惠勒-德维特方程", "desc": "", "category": "entropy_cosmology"},
 		"time_illusion": {"name": "时间的主观性错觉", "desc": "", "category": "entropy_cosmology"},
+		"light_clock": {"name": "光钟与时间膨胀", "desc": "", "category": "special_relativity"},
+		"traversable_wormhole": {"name": "可穿越虫洞", "desc": "", "category": "general_relativity"},
 	}
 	return fallbacks.get(entry_id, {"name": entry_id, "desc": "", "category": "unknown"})
 

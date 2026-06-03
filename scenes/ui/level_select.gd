@@ -17,6 +17,7 @@ func _ready() -> void:
 	_build_background()
 	_build_title()
 	_build_world_panels()
+	_build_minigame_section()
 	_build_back_button()
 	TransitionLayer.fade_in()
 
@@ -261,6 +262,107 @@ func _on_level_pressed(scene_path: String, world: int, level: int) -> void:
 # ============================================================
 # 返回按钮
 # ============================================================
+
+# ============================================================
+# 趣味挑战（小游戏）
+# ============================================================
+
+func _build_minigame_section() -> void:
+	var y: float = 660.0
+	var col := Color(0.3, 0.9, 1.0)
+
+	# 面板背景
+	var panel := Panel.new()
+	panel.name = "MinigamePanel"
+	panel.position = Vector2(40, y)
+	panel.size = Vector2(1200, 70)
+	var psb := StyleBoxFlat.new()
+	psb.bg_color = C_PANEL_BG
+	psb.border_color = Color(col.r, col.g, col.b, 0.3)
+	psb.set_border_width_all(1)
+	psb.border_width_left = 3
+	psb.set_corner_radius_all(6)
+	psb.shadow_color = Color(col.r, col.g, col.b, 0.1)
+	psb.shadow_size = 8
+	panel.add_theme_stylebox_override("panel", psb)
+	add_child(panel)
+
+	# 标题
+	var title := Label.new()
+	title.text = "🎮  趣味挑战"
+	title.position = Vector2(16, 8)
+	title.size = Vector2(200, 20)
+	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_color_override("font_color", col)
+	panel.add_child(title)
+
+	var sub := Label.new()
+	sub.text = "小游戏 · 动手理解相对论"
+	sub.position = Vector2(16, 28)
+	sub.size = Vector2(200, 16)
+	sub.add_theme_font_size_override("font_size", 10)
+	sub.add_theme_color_override("font_color", Color(col.r, col.g, col.b, 0.4))
+	panel.add_child(sub)
+
+	# 小游戏按钮
+	var mg_ids: Array = ["light_clock", "wormhole_engineer"]
+	var btn_width: float = 220.0
+	var btn_height: float = 44.0
+	var start_x: float = 280.0
+	for mi in mg_ids.size():
+		var mg_id: String = mg_ids[mi]
+		var data: Dictionary = GameState.MINIGAME_REGISTRY.get(mg_id, {})
+		var completed: bool = GameState.is_minigame_completed(mg_id)
+		var mg_col: Color = data.get("color", col)
+		var bx: float = start_x + mi * (btn_width + 40.0)
+
+		var btn := Button.new()
+		btn.name = "MinigameBtn_" + mg_id
+		btn.position = Vector2(bx, 14)
+		btn.size = Vector2(btn_width, btn_height)
+		btn.add_theme_font_size_override("font_size", 13)
+
+		var icon: String
+		var label_col: Color
+		if completed:
+			icon = "◆"
+			label_col = C_GOLD
+		else:
+			icon = "◇"
+			label_col = Color(0.5, 0.9, 1.0, 0.85)
+
+		btn.text = "%s  %s" % [icon, data.get("name", mg_id)]
+
+		var sb := StyleBoxFlat.new()
+		if completed:
+			sb.bg_color = Color(mg_col.r, mg_col.g, mg_col.b, 0.08)
+			sb.border_color = C_GOLD
+		else:
+			sb.bg_color = Color(mg_col.r, mg_col.g, mg_col.b, 0.06)
+			sb.border_color = Color(mg_col.r, mg_col.g, mg_col.b, 0.45)
+		sb.set_border_width_all(1)
+		sb.set_corner_radius_all(4)
+		btn.add_theme_stylebox_override("normal", sb)
+
+		var sb_h := StyleBoxFlat.new()
+		if completed:
+			sb_h.bg_color = Color(mg_col.r, mg_col.g, mg_col.b, 0.18)
+			sb_h.border_color = C_GOLD
+		else:
+			sb_h.bg_color = Color(mg_col.r, mg_col.g, mg_col.b, 0.15)
+			sb_h.border_color = Color(mg_col.r, mg_col.g, mg_col.b, 0.75)
+		sb_h.set_border_width_all(1)
+		sb_h.set_corner_radius_all(4)
+		sb_h.shadow_color = Color(mg_col.r, mg_col.g, mg_col.b, 0.25)
+		sb_h.shadow_size = 10
+		btn.add_theme_stylebox_override("hover", sb_h)
+
+		btn.add_theme_color_override("font_color", label_col)
+		btn.add_theme_color_override("font_hover_color", Color(1, 1, 1, 1))
+
+		btn.pressed.connect(func(): TransitionLayer.transition_to(data.get("scene", "")))
+		panel.add_child(btn)
+
 
 func _build_back_button() -> void:
 	var btn := Button.new()
