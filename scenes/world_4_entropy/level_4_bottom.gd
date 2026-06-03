@@ -62,21 +62,22 @@ func _spawn_physicists_cabin() -> void:
 	var cabin_x: float = level_center_x + level_width / 2.0 - 300.0  # x≈1700
 	var cabin_y: float = 560.0
 
-	# 地板通道（延伸至小屋入口）
+	# 地板通道（延伸至小屋入口，并覆盖到霍金脚下，确保两位 NPC 都可达）
+	# 覆盖范围 [cabin_x-700, cabin_x+160]：宽 860，中心 cabin_x-270
 	var passage := StaticBody2D.new()
 	passage.name = "CabinFloor"
-	passage.position = Vector2(cabin_x - 350, cabin_y + 40)
+	passage.position = Vector2(cabin_x - 270, cabin_y + 40)
 	passage.collision_mask = 0
 	var pcol := CollisionShape2D.new()
 	var prect := RectangleShape2D.new()
-	prect.size = Vector2(700, 32)
+	prect.size = Vector2(860, 32)
 	pcol.shape = prect
 	passage.add_child(pcol)
 	var pvis := ColorRect.new()
 	pvis.name = "Visual"
-	pvis.offset_left = -350.0
+	pvis.offset_left = -430.0
 	pvis.offset_top = -16.0
-	pvis.offset_right = 350.0
+	pvis.offset_right = 430.0
 	pvis.offset_bottom = 16.0
 	pvis.color = Color(0.25, 0.25, 0.35, 1)
 	passage.add_child(pvis)

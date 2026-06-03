@@ -16,7 +16,7 @@ extends Node2D
 @export var hawking_pos: Vector2 = Vector2(80, -40)
 
 @export_category("Dialogue")
-@export var talk_range: float = 90.0
+@export var talk_range: float = 110.0
 @export var auto_close_time: float = 5.0
 @export var codex_id: String = "physicists_cabin"
 
@@ -491,9 +491,10 @@ func _show_current_line() -> void:
 	_bubble_text.text = lines[_dialogue_index]
 
 	# 定位气泡在 NPC 头顶
+	# 气泡在 CanvasLayer（屏幕空间），NPC 在世界空间，需做坐标转换
 	var npc_node: Node2D = _einstein_node if _active_npc == "einstein" else _hawking_node
-	var npc_world_pos: Vector2 = global_position + npc_node.position
-	_bubble_panel.position = npc_world_pos + Vector2(-210, -120)
+	var npc_screen_pos: Vector2 = npc_node.get_global_transform_with_canvas().origin
+	_bubble_panel.position = npc_screen_pos + Vector2(-210, -120)
 
 	_bubble_panel.visible = true
 	_bubble_panel.modulate = Color(1, 1, 1, 0)
@@ -504,6 +505,11 @@ func _show_current_line() -> void:
 func _update_dialogue(delta: float) -> void:
 	if _active_npc == "":
 		return
+	# 气泡每帧跟随 NPC 屏幕位置（相机移动时不漂移）
+	if _bubble_panel and _bubble_panel.visible:
+		var npc_node: Node2D = _einstein_node if _active_npc == "einstein" else _hawking_node
+		var npc_screen_pos: Vector2 = npc_node.get_global_transform_with_canvas().origin
+		_bubble_panel.position = npc_screen_pos + Vector2(-210, -120)
 	_dialogue_timer += delta
 	if _dialogue_timer >= auto_close_time:
 		_close_dialogue()
