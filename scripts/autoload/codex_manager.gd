@@ -72,6 +72,11 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "真空中虚粒子对不断创生湮灭——看似空无一物之处，实则是沸腾的量子泡沫。裂隙即是涨落的宏观显现。",
 		"category": "quantum_gravity"
 	},
+	"chronology_protection": {
+		"name": "时序保护猜想",
+		"desc": "霍金(1992)提出：物理定律禁止宏观时间旅行。量子真空涨落在CTC形成时会发散——大自然讨厌时间机器。",
+		"category": "quantum_gravity"
+	},
 }
 
 # ---- 状态 ----

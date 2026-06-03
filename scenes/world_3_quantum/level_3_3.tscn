@@ -1,0 +1,170 @@
+[gd_scene format=3 uid="uid://blevel33001"]
+
+[ext_resource type="Script" path="res://scenes/world_3_quantum/level_3_3.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/mechanics/casimir_plates.gd" id="2_cp"]
+[ext_resource type="Script" path="res://scripts/mechanics/quantum_fissure.gd" id="3_qf"]
+[ext_resource type="Script" path="res://scripts/mechanics/chronology_protection.gd" id="4_chp"]
+[ext_resource type="Script" path="res://scripts/objects/time_fragment.gd" id="5_tf"]
+
+[sub_resource type="RectangleShape2D" id="Floor_S"]
+size = Vector2(400, 32)
+
+[sub_resource type="RectangleShape2D" id="Floor_M"]
+size = Vector2(400, 32)
+
+[sub_resource type="RectangleShape2D" id="Floor_G"]
+size = Vector2(200, 32)
+
+[sub_resource type="RectangleShape2D" id="Wall_Shape"]
+size = Vector2(20, 260)
+
+[sub_resource type="RectangleShape2D" id="Frag_Shape"]
+size = Vector2(80, 60)
+
+; ===== Level Root =====
+[node name="Level3_3" type="Node2D"]
+script = ExtResource("1_ctrl")
+player_spawn = Vector2(100, 530)
+fall_y = 900.0
+level_center_x = 520.0
+level_width = 1200.0
+complete_text = "[ 关卡完成: 时序保护猜想 ]
+观测即干预——每一次对时间的干预都在累积张力。
+宇宙不允许宏观时间旅行。
+霍金，1992。"
+next_level_path = ""
+
+; ===== 房间 S 地面 (x=0~400) =====
+[node name="FloorS" type="StaticBody2D" parent="."]
+position = Vector2(200, 620)
+collision_mask = 0
+
+[node name="ColS" type="CollisionShape2D" parent="FloorS"]
+shape = SubResource("Floor_S")
+
+[node name="VisS" type="ColorRect" parent="FloorS"]
+offset_left = -200.0
+offset_top = -16.0
+offset_right = 200.0
+offset_bottom = 16.0
+color = Color(0.28, 0.28, 0.4, 1)
+
+; ===== 墙 SM (x=410) =====
+[node name="WallSM" type="StaticBody2D" parent="."]
+position = Vector2(410, 490)
+collision_layer = 1
+collision_mask = 0
+
+[node name="ColSM" type="CollisionShape2D" parent="WallSM"]
+shape = SubResource("Wall_Shape")
+
+[node name="VisSM" type="ColorRect" parent="WallSM"]
+offset_left = -10.0
+offset_top = -130.0
+offset_right = 10.0
+offset_bottom = 130.0
+color = Color(0.22, 0.2, 0.35, 1)
+
+; ===== 房间 M 地面 (x=420~820) =====
+[node name="FloorM" type="StaticBody2D" parent="."]
+position = Vector2(620, 620)
+collision_mask = 0
+
+[node name="ColM" type="CollisionShape2D" parent="FloorM"]
+shape = SubResource("Floor_M")
+
+[node name="VisM" type="ColorRect" parent="FloorM"]
+offset_left = -200.0
+offset_top = -16.0
+offset_right = 200.0
+offset_bottom = 16.0
+color = Color(0.3, 0.3, 0.42, 1)
+
+; ===== 墙 MG (x=830) =====
+[node name="WallMG" type="StaticBody2D" parent="."]
+position = Vector2(830, 490)
+collision_layer = 1
+collision_mask = 0
+
+[node name="ColMG" type="CollisionShape2D" parent="WallMG"]
+shape = SubResource("Wall_Shape")
+
+[node name="VisMG" type="ColorRect" parent="WallMG"]
+offset_left = -10.0
+offset_top = -130.0
+offset_right = 10.0
+offset_bottom = 130.0
+color = Color(0.22, 0.2, 0.35, 1)
+
+; ===== 房间 G 地面 (x=840~1040) =====
+[node name="FloorG" type="StaticBody2D" parent="."]
+position = Vector2(940, 620)
+collision_mask = 0
+
+[node name="ColG" type="CollisionShape2D" parent="FloorG"]
+shape = SubResource("Floor_G")
+
+[node name="VisG" type="ColorRect" parent="FloorG"]
+offset_left = -100.0
+offset_top = -16.0
+offset_right = 100.0
+offset_bottom = 16.0
+color = Color(0.28, 0.35, 0.3, 1)
+
+; ===== 卡西米尔板对 (房间 S) =====
+[node name="CasimirPlates" type="Node2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("2_cp")
+plate_a_pos = Vector2(120, 590)
+plate_b_pos = Vector2(330, 590)
+threshold = 100.0
+
+; ===== 裂隙 F1: S→M 近墙(负能量稳定后 4s) =====
+[node name="Fissure1" type="Node2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("3_qf")
+entry_pos = Vector2(380, 560)
+exit_pos = Vector2(480, 560)
+initial_delay = 0.0
+warning_time = 0.5
+open_time = 1.5
+cycle_period = 12.0
+
+; ===== 裂隙 F2: M→G (需 E 延长) =====
+[node name="Fissure2" type="Node2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("3_qf")
+entry_pos = Vector2(600, 530)
+exit_pos = Vector2(900, 530)
+initial_delay = 3.0
+warning_time = 0.5
+open_time = 1.2
+cycle_period = 12.0
+
+; ===== 裂隙 F3: S→G 直通(备选/陷阱, 用时序计数换) =====
+[node name="Fissure3" type="Node2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("3_qf")
+entry_pos = Vector2(200, 460)
+exit_pos = Vector2(920, 590)
+initial_delay = 6.0
+warning_time = 0.5
+open_time = 1.0
+cycle_period = 12.0
+
+; ===== 时序保护 (左上角 HUD + 计数器) =====
+[node name="ChronologyProtection" type="Node2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("4_chp")
+max_interventions = 3
+decay_time = 15.0
+
+; ===== 终点碎片 (房间 G, x=960) =====
+[node name="TimeFragment" type="Area2D" parent="."]
+position = Vector2(960, 590)
+collision_mask = 2
+script = ExtResource("5_tf")
+codex_id = "chronology_protection"
+
+[node name="ColFrag" type="CollisionShape2D" parent="TimeFragment"]
+shape = SubResource("Frag_Shape")

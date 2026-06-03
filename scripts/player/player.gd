@@ -203,6 +203,10 @@ func _try_extend_fissures() -> void:
 	for fissure in get_tree().get_nodes_in_group("quantum_fissure"):
 		if fissure.has_method("try_extend"):
 			if fissure.try_extend(global_position):
+				# 通知时序保护系统
+				for cp in get_tree().get_nodes_in_group("chronology_protection"):
+					if cp.has_method("register_intervention"):
+						cp.register_intervention()
 				return  # 找到一个就停
 
 
