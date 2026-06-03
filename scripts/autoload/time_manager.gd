@@ -29,6 +29,10 @@ var scene_time_scale: float = 1.0:
 
 ## 玩家洛伦兹因子（供视觉效果使用：尺缩、蓝移/红移）
 var player_lorentz_factor: float = 1.0
+## 玩家当前速率（供音频合成器使用）
+var player_speed: float = 0.0
+## 红线接近度 [0, 1]（供音频合成器使用）
+var redline_ratio: float = 0.0
 
 # ---- 信号 ----
 
@@ -41,6 +45,8 @@ signal scene_time_scale_changed(new_scale: float)
 func update_from_player_speed(speed: float) -> void:
 	var gamma: float = _SpeedTimeCoupling.lorentz_factor(speed)
 	player_lorentz_factor = gamma
+	player_speed = speed
+	redline_ratio = _SpeedTimeCoupling.get_redline_ratio(speed)
 	scene_time_scale = gamma  # 世界1：场景时间直接 = γ
 
 
@@ -66,3 +72,5 @@ func calculate_time_scale(body: Node2D) -> float:
 func reset() -> void:
 	scene_time_scale = 1.0
 	player_lorentz_factor = 1.0
+	player_speed = 0.0
+	redline_ratio = 0.0

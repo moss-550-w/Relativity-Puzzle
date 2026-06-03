@@ -107,6 +107,7 @@ func _apply_movement(delta: float) -> void:
 	# 跳跃（实时输入）
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
+			AudioManager.play_sfx("jump")
 
 	move_and_slide()
 

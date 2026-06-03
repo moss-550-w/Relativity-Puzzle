@@ -33,26 +33,24 @@ func _ready() -> void:
 	if not start_forward:
 		_going_forward = false
 
-	# 创建视觉占位：绿色矩形
+	# 视觉占位
 	_body_sprite = ColorRect.new()
 	_body_sprite.size = Vector2(80, 16)
 	_body_sprite.color = platform_color
 	_body_sprite.position = -_body_sprite.size / 2
 	add_child(_body_sprite)
 
-	# 添加碰撞体（如果场景未附）
+	# 碰撞体（如果场景未附）
 	var collision := get_node_or_null("CollisionShape2D")
 	if not collision:
 		var shape := CollisionShape2D.new()
 		var rect := RectangleShape2D.new()
 		rect.size = Vector2(80, 16)
 		shape.shape = rect
-		collision_layer = 4  # platform layer
 		add_child(shape)
 
 
 func _physics_process(delta: float) -> void:
-	# 使用时间膨胀后的 delta
 	var eff_delta: float = TimeManager.scaled_delta(delta)
 
 	if _pausing:
@@ -75,3 +73,11 @@ func _physics_process(delta: float) -> void:
 		_going_forward = not _going_forward
 		_pausing = true
 		_pause_elapsed = 0.0
+
+
+## 重置到初始状态（谜题重置 / 坠崖时调用）
+func reset_state() -> void:
+	_elapsed = 0.0
+	_going_forward = start_forward
+	_pausing = true
+	_pause_elapsed = 0.0
