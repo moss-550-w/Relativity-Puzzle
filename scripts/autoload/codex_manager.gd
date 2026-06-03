@@ -47,6 +47,16 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "若回到过去阻止自己出生，你如何存在？因果闭环的自洽性危机——宇宙或许不容许这样的矛盾。",
 		"category": "general_relativity"
 	},
+	"kerr_black_hole": {
+		"name": "克尔黑洞",
+		"desc": "旋转黑洞——中心不是奇点，而是环状奇环。能层中时空本身被拖拽旋转。克尔度规(1963)是爱因斯坦场方程的精确解。",
+		"category": "general_relativity"
+	},
+	"ring_singularity": {
+		"name": "奇环与裸奇点",
+		"desc": "克尔黑洞的奇点是环状的——理论上有两个视界。若内视界消失，奇环将裸露在外——宇宙是否允许裸奇点存在？",
+		"category": "general_relativity"
+	},
 }
 
 # ---- 状态 ----

@@ -1,0 +1,62 @@
+[gd_scene format=3 uid="uid://bkerrbh001"]
+
+[ext_resource type="Script" path="res://scenes/world_2_gravity/boss_ker_blackhole.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/mechanics/kerr_black_hole.gd" id="2_kerr"]
+[ext_resource type="Script" path="res://scripts/objects/time_fragment.gd" id="3_tf"]
+
+[sub_resource type="RectangleShape2D" id="Floor_Start"]
+size = Vector2(300, 32)
+
+[sub_resource type="RectangleShape2D" id="Floor_End"]
+size = Vector2(200, 32)
+
+; ===== Level Root =====
+[node name="BossKerBlackHole" type="Node2D"]
+script = ExtResource("1_ctrl")
+player_spawn = Vector2(680, 520)
+fall_y = 900.0
+level_center_x = 350.0
+level_width = 1500.0
+complete_text = "[ 克尔黑洞 — 穿越完成 ]
+你是第一个穿过奇环而未解体的观测者。
+旋转黑洞不是科幻——它是爱因斯坦场方程的精确解。
+克尔度规，1963。"
+next_level_path = ""
+
+; ===== 出生平台 (x=550~850, y=620) =====
+[node name="FloorStart" type="StaticBody2D" parent="."]
+position = Vector2(700, 620)
+collision_mask = 0
+
+[node name="ColStart" type="CollisionShape2D" parent="FloorStart"]
+shape = SubResource("Floor_Start")
+
+[node name="VisStart" type="ColorRect" parent="FloorStart"]
+offset_left = -150.0
+offset_top = -16.0
+offset_right = 150.0
+offset_bottom = 16.0
+color = Color(0.25, 0.25, 0.35, 1)
+
+; ===== 克尔黑洞 (x=0, y=300 为场景中心) =====
+[node name="KerrBlackHole" type="Node2D" parent="."]
+position = Vector2(100, 320)
+script = ExtResource("2_kerr")
+ring_radius = 80.0
+inner_horizon_radius = 150.0
+outer_horizon_radius = 280.0
+ergosphere_radius = 480.0
+drag_force = 240.0
+checkpoint_1_pos = Vector2(310, 0)
+checkpoint_2_pos = Vector2(180, 0)
+core_pos = Vector2(40, 0)
+
+; ===== 核心碎片 (奇环内部) =====
+[node name="CoreFragment" type="Area2D" parent="."]
+position = Vector2(140, 320)
+collision_mask = 2
+script = ExtResource("3_tf")
+codex_id = "ring_singularity"
+
+[node name="ColCore" type="CollisionShape2D" parent="CoreFragment"]
+shape = SubResource("Floor_End")
