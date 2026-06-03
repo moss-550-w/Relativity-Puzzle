@@ -23,6 +23,7 @@ const _Player = preload("res://scripts/player/player.gd")
 var _player: Node2D = null
 var _resettables: Array[Node] = []
 var _level_done: bool = false
+var _pause_menu: Control = null
 
 
 func _ready() -> void:
@@ -156,10 +157,140 @@ func _on_level_completed(_name: String) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	# ESC 暂停菜单
+	if event.is_action_pressed("ui_cancel"):
+		_toggle_pause()
+		return
+
 	# 完成后按跳跃键进入下一关
 	if _level_done and next_level_path != "" and event.is_action_pressed("jump"):
 		GameState.current_level += 1
 		get_tree().change_scene_to_file(next_level_path)
+
+
+# ============================================================
+# 暂停菜单
+# ============================================================
+
+func _toggle_pause() -> void:
+	if _level_done:
+		return
+	if not _pause_menu:
+		_build_pause_menu()
+	var paused: bool = not get_tree().paused
+	get_tree().paused = paused
+	_pause_menu.visible = paused
+
+
+func _build_pause_menu() -> void:
+	var cl := CanvasLayer.new()
+	cl.name = "PauseLayer"
+	cl.layer = 200
+	cl.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(cl)
+
+	# 半透明遮罩
+	var overlay := ColorRect.new()
+	overlay.name = "PauseOverlay"
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.color = Color(0.0, 0.0, 0.0, 0.55)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	cl.add_child(overlay)
+
+	_pause_menu = Control.new()
+	_pause_menu.name = "PauseMenu"
+	_pause_menu.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_pause_menu.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pause_menu.visible = false
+	# 挂载 _input 脚本以响应 ESC（暂停后 _unhandled_input 不再触发）
+	_pause_menu.set_script(_make_pause_input_script())
+	cl.add_child(_pause_menu)
+
+	# 面板背景
+	var panel := Panel.new()
+	panel.name = "PausePanel"
+	panel.position = Vector2(440, 180)
+	panel.size = Vector2(400, 340)
+	var psb := StyleBoxFlat.new()
+	psb.bg_color = Color(0.03, 0.06, 0.14, 0.95)
+	psb.border_color = Color(0.2, 0.6, 1.0, 0.5)
+	psb.set_border_width_all(2)
+	psb.set_corner_radius_all(10)
+	psb.shadow_color = Color(0.1, 0.4, 0.9, 0.3)
+	psb.shadow_size = 20
+	panel.add_theme_stylebox_override("panel", psb)
+	_pause_menu.add_child(panel)
+
+	# 标题
+	var title := Label.new()
+	title.text = "◆  暂停"
+	title.position = Vector2(0, 24)
+	title.size = Vector2(400, 36)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 26)
+	title.add_theme_color_override("font_color", Color(0.2, 0.8, 1.0, 1.0))
+	panel.add_child(title)
+
+	# 按钮
+	var btns := [
+		{"text": "▶  继续游戏", "cb": func(): _toggle_pause()},
+		{"text": "↺  重新开始", "cb": func(): _toggle_pause(); GameState.reset_current_puzzle()},
+		{"text": "🏠  返回主菜单", "cb": func(): _toggle_pause(); get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")},
+	]
+	for i in btns.size():
+		var btn := Button.new()
+		btn.text = btns[i]["text"]
+		btn.position = Vector2(90, 100 + i * 60)
+		btn.size = Vector2(220, 44)
+		btn.add_theme_font_size_override("font_size", 17)
+		btn.pressed.connect(btns[i]["cb"])
+		_pause_style_btn(btn)
+		panel.add_child(btn)
+
+	# 底部提示
+	var hint := Label.new()
+	hint.text = "按 ESC 继续"
+	hint.position = Vector2(0, 300)
+	hint.size = Vector2(400, 20)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 11)
+	hint.add_theme_color_override("font_color", Color(0.3, 0.5, 0.7, 0.5))
+	panel.add_child(hint)
+
+
+func _make_pause_input_script() -> GDScript:
+	var s := GDScript.new()
+	s.source_code = """extends Control
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		get_parent().get_parent()._toggle_pause()
+		accept_event()
+"""
+	s.reload()
+	return s
+
+
+func _pause_style_btn(btn: Button) -> void:
+	var col := Color(0.2, 0.6, 1.0)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(col.r, col.g, col.b, 0.1)
+	sb.border_color = Color(col.r, col.g, col.b, 0.4)
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(6)
+	btn.add_theme_stylebox_override("normal", sb)
+
+	var sb_h := StyleBoxFlat.new()
+	sb_h.bg_color = Color(col.r, col.g, col.b, 0.22)
+	sb_h.border_color = Color(col.r, col.g, col.b, 0.75)
+	sb_h.set_border_width_all(2)
+	sb_h.set_corner_radius_all(6)
+	sb_h.shadow_color = Color(col.r, col.g, col.b, 0.35)
+	sb_h.shadow_size = 14
+	btn.add_theme_stylebox_override("hover", sb_h)
+
+	btn.add_theme_color_override("font_color", Color(col.r, col.g, col.b, 0.8))
+	btn.add_theme_color_override("font_hover_color", Color(1, 1, 1, 1))
 
 
 # ============================================================
