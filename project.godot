@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="时空错位：相对论漫游"
-config/description="2D横版相对论解谜游戏 — 世界1原型"
-run/main_scene="res://scenes/world_1_lorentz/level_1_1.tscn"
+config/description="2D横版相对论解谜游戏"
+run/main_scene="res://scenes/ui/main_menu.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
