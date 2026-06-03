@@ -1,10 +1,10 @@
 # 《时空错位：相对论漫游》完整设计文档
 
-**版本：Pre-Production v0.9**
+**版本：v1.0-pre**
 **类型：2D 横版解谜 / 轻平台跳跃**
 **引擎：Godot 4.4+（GDScript）**
 **目标平台：Windows / macOS / Linux PC**
-**体量：4 个世界，12 个关卡，约 3–4 小时流程**
+**体量：4 个世界，11 个关卡 + 2 个小游戏 + 2 个彩蛋，约 3–4 小时流程**
 
 ***
 
@@ -20,7 +20,9 @@
 8. [技术架构](#八技术架构)
 9. [美术与音效](#九美术与音效)
 10. [结局系统](#十结局系统)
-11. [开发状态](#十一开发状态)
+11. [趣味小游戏](#十一趣味小游戏)
+12. [彩蛋](#十二彩蛋)
+13. [开发状态](#十三开发状态)
 
 ***
 
@@ -45,8 +47,9 @@
 | Left Shift | 冲刺（累积速率 ×3.5）  | 初始                   |
 | **二段跳**    | 空中再次跳跃         | 克尔黑洞 BOSS 关（CP1）持久解锁 |
 | F          | 抓取/拖拽（虫洞口、金属板） | World 2 起            |
-| E          | 观测（延长量子裂隙存续）   | World 3 起            |
+| E          | 观测（延长量子裂隙 + NPC 交谈） | World 3 起            |
 | R          | 重置谜题           | 全程可用                 |
+| ESC        | 暂停菜单 / 返回       | 全程可用                 |
 
 **速度累积系统**：长按方向键 → `ramped_speed` 持续增长（最高 980px/s ≈ 0.98c）→ 光速红线（990px/s = 0.99c）触发弹回。
 
@@ -162,7 +165,7 @@
 | 要素       | 内容                                                              |
 | -------- | --------------------------------------------------------------- |
 | **机制**   | 全局熵值 \[0,1] 线性递增（\~125s 到 1.0）。3 个熵增平台渐进崩解（完整→裂纹→崩解→消失），碰撞体同步缩小 |
-| **秩序能量** | 3 个金色光点可收集，每次消耗回退熵 0.12（约 15s）                                  |
+| **秩序能量** | 3 个金色光点可收集，每次消耗回退熵 0.12（约 15s）。收集音效为上琶音（523→659→784Hz）         |
 | **昼夜**   | 90s 周期正弦暖橙（昼）↔ 深蓝（夜）CanvasLayer 叠加                              |
 | **图鉴**   | `entropy_arrow`                                                 |
 
@@ -181,8 +184,11 @@
 | ------ | --------------------------------------------------------- |
 | **机制** | 时间完全静止。3 组时间切片——同一物体以 5 个时间副本平铺（红\[过去]→白\[现在]→蓝\[未来]）     |
 | **独白** | 4 段字幕分别于 10s/30s/60s/90s 淡入："时间不流动……惠勒-德维特方程中，时间消失了……"    |
+| **音景** | 36Hz 极低频嗡鸣 + 第二泛音，时间静止时专属环境音                               |
 | **结局** | 120s 后自动触发 `PlayerMetrics.determine_ending()` → 冻结 + 结局字幕 |
 | **图鉴** | `wheeler_dewitt`（60s）、`time_illusion`（90s）                |
+| **彩蛋** | 右侧远处发现「物理学家小屋」— 爱因斯坦与霍金 NPC 对话                           |
+| **图鉴(彩蛋)** | `physicists_cabin`                                       |
 
 ***
 
@@ -190,14 +196,15 @@
 
 ### Autoload 加载顺序
 
-| 顺序 | 名称              | 职责                            |
-| -- | --------------- | ----------------------------- |
-| 1  | `GameState`     | 世界/关卡索引、暂停、二段跳解锁、谜题重置         |
-| 2  | `TimeManager`   | 场景时间缩放（速度γ × 引力因子）、玩家实时 delta |
-| 3  | `CodexManager`  | 图鉴解锁、词条数据（16 条）               |
-| 4  | `AudioManager`  | 程序化音频合成（AudioStreamGenerator） |
-| 5  | `PlayerMetrics` | 行为追踪：CTC 次数、熵减干预、底层静止时间、结局判定  |
-| 6  | `EntropySystem` | 全局熵值 \[0,1]、秩序资源、里程碑信号        |
+| 顺序 | 名称                | 职责                                    |
+| -- | ----------------- | ------------------------------------- |
+| 1  | `GameState`       | 世界/关卡索引、暂停、二段跳解锁、进度追踪、关卡注册表           |
+| 2  | `TimeManager`     | 场景时间缩放（速度γ × 引力因子）、玩家实时 delta         |
+| 3  | `CodexManager`    | 图鉴解锁、词条数据（21 条）                       |
+| 4  | `AudioManager`    | 程序化音频合成（AudioStreamGenerator）— 10 种 SFX |
+| 5  | `PlayerMetrics`   | 行为追踪：CTC 次数、熵减干预、底层静止时间、结局判定          |
+| 6  | `EntropySystem`   | 全局熵值 \[0,1]、秩序资源、里程碑信号                |
+| 7  | `TransitionLayer` | 场景过渡管理器：淡出(0.3s) → change_scene → 淡入(0.4s) |
 
 ### TimeManager 计算公式
 
@@ -208,28 +215,39 @@ scaled_delta     = delta × scene_time_scale × gravity_factor
 player_delta     = delta (始终实时)
 ```
 
+### 关卡推进与选择
+
+- 集中式 `LEVEL_REGISTRY` 定义全部 11 关卡元数据（名称、场景路径）
+- `GameState` 追踪已完成关卡 + 自动解锁下一关（包括跨世界）
+- 关卡选择界面：4 世界面板 + 关卡按钮（完成/解锁/锁定三态）+ 星空背景
+- 关卡完成面板：下一关（自动跨世界）/ 重新挑战 / 返回选关
+- 场景过渡：全屏淡入淡出，`TransitionLayer` 统一管理
+
 ### 图鉴词条
 
-| 分类                  | ID                            | 中文名         | 解锁关卡      |
-| ------------------- | ----------------------------- | ----------- | --------- |
-| special\_relativity | `time_dilation`               | 时间膨胀        | M1-1      |
-| special\_relativity | `light_speed_barrier`         | 光速不变与光速壁垒   | M1-2      |
-| special\_relativity | `light_cone`                  | 光锥与因果结构     | M1-3      |
-| special\_relativity | `twin_paradox`                | 双生子佯谬       | M1-1 彩蛋   |
-| general\_relativity | `gravitational_time_dilation` | 引力时间膨胀      | M2-1      |
-| general\_relativity | `wormhole`                    | 虫洞与爱因斯坦-罗森桥 | M2-2      |
-| general\_relativity | `ctc`                         | 闭合类时曲线 CTC  | M2-2      |
-| general\_relativity | `grandfather_paradox`         | 祖父悖论        | M2-2 悖论触发 |
-| general\_relativity | `kerr_black_hole`             | 克尔黑洞        | BOSS CP1  |
-| general\_relativity | `ergosphere`                  | 能层与帧拖拽      | BOSS CP2  |
-| general\_relativity | `ring_singularity`            | 奇环与裸奇点      | BOSS 核心   |
-| quantum\_gravity    | `casimir_effect`              | 卡西米尔效应与负能量  | M3-1      |
-| quantum\_gravity    | `quantum_vacuum`              | 量子真空涨落      | M3-2      |
-| quantum\_gravity    | `chronology_protection`       | 时序保护猜想      | M3-3      |
-| entropy\_cosmology  | `entropy_arrow`               | 熵增定律与时间箭头   | W4 上层     |
-| entropy\_cosmology  | `block_universe`              | 块状宇宙        | W4 中层     |
-| entropy\_cosmology  | `wheeler_dewitt`              | 惠勒-德维特方程    | W4 底层 60s |
-| entropy\_cosmology  | `time_illusion`               | 时间的主观性错觉    | W4 底层 90s |
+| 分类                  | ID                        | 中文名         | 解锁位置        |
+| ------------------- | ------------------------- | ----------- | ----------- |
+| special\_relativity | `time_dilation`           | 时间膨胀        | M1-1        |
+| special\_relativity | `light_speed_barrier`     | 光速不变与光速壁垒   | M1-2        |
+| special\_relativity | `light_clock`             | 光钟与时间膨胀     | 光钟工坊小游戏     |
+| special\_relativity | `light_cone`              | 光锥与因果结构     | M1-3        |
+| special\_relativity | `twin_paradox`            | 双生子佯谬       | M1-1 彩蛋     |
+| general\_relativity | `gravitational_time_dilation` | 引力时间膨胀  | M2-1        |
+| general\_relativity | `wormhole`                | 虫洞与爱因斯坦-罗森桥 | M2-2        |
+| general\_relativity | `traversable_wormhole`    | 可穿越虫洞       | 虫洞工程师小游戏    |
+| general\_relativity | `ctc`                     | 闭合类时曲线 CTC  | M2-2        |
+| general\_relativity | `grandfather_paradox`     | 祖父悖论        | M2-2 悖论触发   |
+| general\_relativity | `kerr_black_hole`         | 克尔黑洞        | BOSS CP1    |
+| general\_relativity | `ergosphere`              | 能层与帧拖拽      | BOSS CP2    |
+| general\_relativity | `ring_singularity`        | 奇环与裸奇点      | BOSS 核心     |
+| quantum\_gravity    | `casimir_effect`          | 卡西米尔效应与负能量  | M3-1        |
+| quantum\_gravity    | `quantum_vacuum`          | 量子真空涨落      | M3-2        |
+| quantum\_gravity    | `chronology_protection`   | 时序保护猜想      | M3-3        |
+| entropy\_cosmology  | `entropy_arrow`           | 熵增定律与时间箭头   | W4 上层       |
+| entropy\_cosmology  | `block_universe`          | 块状宇宙        | W4 中层       |
+| entropy\_cosmology  | `wheeler_dewitt`          | 惠勒-德维特方程    | W4 底层 60s   |
+| entropy\_cosmology  | `time_illusion`           | 时间的主观性错觉    | W4 底层 90s   |
+| entropy\_cosmology  | `physicists_cabin`        | 物理学家的午后     | W4 底层彩蛋     |
 
 ***
 
@@ -242,72 +260,78 @@ player_delta     = delta (始终实时)
 | 1    | world    | 地面、墙壁、障碍物 |
 | 2    | player   | 玩家角色      |
 | 3    | platform | 移动平台      |
-| 4    | gate     | 周期闸门      |
 
 ### 项目文件结构（实际）
 
 ```
 scripts/
 ├── autoload/
-│   ├── game_state.gd          # 全局状态 + 二段跳标记
-│   ├── time_manager.gd        # 时间控制（γ × gravity_factor）
-│   ├── codex_manager.gd       # 图鉴系统（18 词条）
-│   ├── audio_manager.gd       # 程序化音频合成
-│   ├── player_metrics.gd      # 行为追踪 + 结局判定
-│   └── entropy_system.gd      # 全局熵增（World 4）
+│   ├── game_state.gd              # 全局状态 + 进度追踪 + 关卡注册表 + 小游戏注册表
+│   ├── time_manager.gd            # 时间控制（γ × gravity_factor）
+│   ├── codex_manager.gd           # 图鉴系统（21 词条）
+│   ├── audio_manager.gd           # 程序化音频合成（10 种 SFX + 环境音层）
+│   ├── player_metrics.gd          # 行为追踪 + 结局判定
+│   ├── entropy_system.gd          # 全局熵增（World 4）
+│   └── transition_layer.gd        # 场景过渡管理器
 ├── player/
-│   ├── player.gd              # 移动 + 二段跳 + E 键观测
-│   └── player_abilities.gd    # 观测/抓取（桩）
+│   ├── player.gd                  # 移动 + 二段跳 + E 键观测
+│   └── player_abilities.gd        # 观测/抓取（桩）
 ├── mechanics/
-│   ├── speed_time_coupling.gd # 洛伦兹因子
-│   ├── time_dilation.gd       # TimeAffectedBody 基类
-│   ├── light_cone_boundary.gd # 光锥安全区
-│   ├── gravity_zone.gd        # 引力区
-│   ├── wormhole_pair.gd       # 虫洞对 + CTC 状态机
-│   ├── kerr_black_hole.gd     # 克尔黑洞核心
-│   ├── casimir_plates.gd      # 卡西米尔板对
-│   ├── quantum_fissure.gd     # 量子裂隙
-│   ├── chronology_protection.gd # 时序保护
-│   ├── time_zone.gd           # 时区
-│   └── time_slice.gd          # 时间切片
+│   ├── speed_time_coupling.gd     # 洛伦兹因子
+│   ├── time_dilation.gd           # TimeAffectedBody 基类
+│   ├── light_cone_boundary.gd     # 光锥安全区
+│   ├── gravity_zone.gd            # 引力区
+│   ├── wormhole_pair.gd           # 虫洞对 + CTC 状态机
+│   ├── kerr_black_hole.gd         # 克尔黑洞核心
+│   ├── casimir_plates.gd          # 卡西米尔板对
+│   ├── quantum_fissure.gd         # 量子裂隙
+│   ├── chronology_protection.gd   # 时序保护
+│   ├── time_zone.gd               # 时区
+│   └── time_slice.gd              # 时间切片
 ├── objects/
-│   ├── moving_platform.gd     # 移动平台（受时间膨胀）
-│   ├── cycled_gate.gd         # 周期闸门
-│   ├── redline_barrier.gd     # 红线壁垒
-│   ├── time_fragment.gd       # 时空碎片
-│   ├── ctc_door.gd            # CTC 联动门
-│   ├── unstable_wormhole.gd   # 不稳定虫洞
-│   ├── entropy_platform.gd    # 熵增平台
-│   └── order_energy.gd        # 秩序能量
+│   ├── moving_platform.gd         # 移动平台（受时间膨胀）
+│   ├── cycled_gate.gd             # 周期闸门
+│   ├── redline_barrier.gd         # 红线壁垒
+│   ├── time_fragment.gd           # 时空碎片
+│   ├── ctc_door.gd                # CTC 联动门
+│   ├── unstable_wormhole.gd       # 不稳定虫洞
+│   ├── entropy_platform.gd        # 熵增平台（含崩解音效触发）
+│   └── order_energy.gd            # 秩序能量（含上琶音收集音效）
 ├── npc/
-│   └── twin_room.gd           # 双生子小屋
+│   ├── twin_room.gd               # 双生子小屋
+│   └── einstein_hawking_npc.gd    # 物理学家小屋（爱因斯坦 + 霍金 + 对话系统）
 └── ui/
-    ├── relative_clock.gd      # HUD
-    ├── hud_gauge.gd           # 环形仪表
-    ├── time_warp_overlay.gd   # 时间色偏 Shader
-    └── codex_entry.gd         # 图鉴词条资源
+    ├── relative_clock.gd          # HUD
+    ├── hud_gauge.gd               # 环形仪表
+    ├── time_warp_overlay.gd       # 时间色偏 Shader
+    └── codex_entry.gd             # 图鉴词条资源
 
 scenes/
 ├── player.tscn
 ├── world_1_lorentz/
-│   ├── level_base.gd          # 关卡基类
-│   ├── level_1_1.gd/.tscn     # 三重时间考验 + 双生子彩蛋
-│   ├── level_1_2.gd/.tscn     # 光速红线
-│   └── level_1_3.gd/.tscn     # 光锥边界
+│   ├── level_base.gd              # 关卡基类（过渡、完成面板、暂停菜单）
+│   ├── level_1_1.gd/.tscn         # 三重时间考验 + 双生子彩蛋
+│   ├── level_1_2.gd/.tscn         # 光速红线
+│   └── level_1_3.gd/.tscn         # 光锥边界
 ├── world_2_gravity/
-│   ├── level_2_1.gd/.tscn     # 引力时间膨胀
-│   ├── level_2_2.gd/.tscn     # CTC 核心谜题
+│   ├── level_2_1.gd/.tscn         # 引力时间膨胀
+│   ├── level_2_2.gd/.tscn         # CTC 核心谜题
 │   └── boss_ker_blackhole.gd/.tscn  # 克尔黑洞
 ├── world_3_quantum/
-│   ├── level_3_1.gd/.tscn     # 卡西米尔效应
-│   ├── level_3_2.gd/.tscn     # 量子裂隙网络
-│   └── level_3_3.gd/.tscn     # 时序保护综合
+│   ├── level_3_1.gd/.tscn         # 卡西米尔效应
+│   ├── level_3_2.gd/.tscn         # 量子裂隙网络
+│   └── level_3_3.gd/.tscn         # 时序保护综合
 ├── world_4_entropy/
-│   ├── level_4_upper.gd/.tscn  # 熵之斜坡
-│   ├── level_4_middle.gd/.tscn # 时间的碎片
-│   └── level_4_bottom.gd/.tscn # 本源静止空间
-└── ui/
-    └── hud.tscn
+│   ├── level_4_upper.gd/.tscn     # 熵之斜坡
+│   ├── level_4_middle.gd/.tscn    # 时间的碎片
+│   └── level_4_bottom.gd/.tscn    # 本源静止空间 + 物理学家小屋彩蛋
+├── ui/
+│   ├── main_menu.gd/.tscn         # 主菜单（含图鉴面板）
+│   ├── level_select.gd/.tscn      # 关卡选择界面
+│   └── hud.tscn
+└── minigames/
+    ├── light_clock.gd/.tscn        # 光钟工坊
+    └── wormhole_engineer.gd/.tscn  # 虫洞工程师
 ```
 
 ***
@@ -316,34 +340,43 @@ scenes/
 
 ### 视觉效果速查
 
-| 效果   | 视觉实现                     |
-| ---- | ------------------------ |
-| 时间加速 | `time_warp.gdshader` 蓝移  |
-| 时间减速 | `time_warp.gdshader` 红移  |
-| 光速红线 | 全屏红移闪光 + 边框脉冲            |
-| 运动尺缩 | 玩家 VisualRoot 横向压缩       |
-| 引力区  | 暗紫同心椭圆光环 + 粒子公转          |
-| 虫洞   | 蓝/橙旋转光环 + 贝塞尔连线          |
-| 克尔黑洞 | 四层光环 + 40 粒子 + 奇环间隙      |
-| 卡西米尔 | 板间蓝色光柱 + 蓝边框辉光           |
-| 量子裂隙 | 蓝紫光环 + 粒子汇聚/飘浮           |
-| 时序风暴 | 全屏金→红闪光 + 30 高速粒子        |
-| 昼夜循环 | CanvasLayer 暖橙↔深蓝 90s 周期 |
-| 熵增崩解 | 平台色变灰褐 + 4 条裂缝渐显         |
-| 时间切片 | 5 色渐变排列（红→白→蓝）           |
-| 底层寂静 | 去色近乎黑白 + 淡冷蓝偏色           |
+| 效果     | 视觉实现                         |
+| ------ | ---------------------------- |
+| 时间加速   | `time_warp.gdshader` 蓝移      |
+| 时间减速   | `time_warp.gdshader` 红移      |
+| 光速红线   | 全屏红移闪光 + 边框脉冲                |
+| 运动尺缩   | 玩家 VisualRoot 横向压缩           |
+| 引力区    | 暗紫同心椭圆光环 + 粒子公转              |
+| 虫洞     | 蓝/橙旋转光环 + 贝塞尔连线              |
+| 克尔黑洞   | 四层光环 + 40 粒子 + 奇环间隙          |
+| 卡西米尔   | 板间蓝色光柱 + 蓝边框辉光               |
+| 量子裂隙   | 蓝紫光环 + 粒子汇聚/飘浮               |
+| 时序风暴   | 全屏金→红闪光 + 30 高速粒子            |
+| 昼夜循环   | CanvasLayer 暖橙↔深蓝 90s 周期     |
+| 熵增崩解   | 平台色变灰褐 + 4 条裂缝渐显 + 噪音爆裂崩解    |
+| 时间切片   | 5 色渐变排列（红→白→蓝）               |
+| 光钟可视化  | 双参考系对比：垂直反弹 vs 锯齿斜线 + 直角三角形辅助线 |
+| 虫洞工程师  | 虫洞闪烁橙/稳定蓝 + 粒子拖尾 + 目标区虚线框     |
+| 星空背景   | 主菜单 / 关卡选择 60 粒子缓降 + 正弦透明度闪烁  |
+| NPC 人物  | Polygon2D 构造（爱因斯坦白爆发+西装 / 霍金轮椅+眼镜+绿屏） |
 
 ### 音效速查
 
-| 事件   | 音频                                    |
-| ---- | ------------------------------------- |
-| 持续底噪 | 基频随 `scene_time_scale` 变化（80Hz→800Hz） |
-| 红线警告 | 高频谐波叠加（`redline_ratio` > 0.3）         |
-| 红线弹回 | 300Hz→60Hz 扫频下降                       |
-| 碎片收集 | 440Hz→880Hz 上扬                        |
-| 跳跃   | 220Hz→330Hz 短促                        |
-| 熵增崩解 | （待实现）和谐→噪音                            |
-| 底层寂静 | （待实现）极低频嗡鸣                            |
+| 事件               | 音频                                                | SFX ID              |
+| ------------------ | ------------------------------------------------- | ------------------- |
+| 持续底噪           | 基频随 `scene_time_scale` 变化（80Hz→800Hz），熵高时混入粉噪    | —（环境层）              |
+| World 4 底层嗡鸣   | 36Hz 纯正弦 + 第二泛音，熵暂停时专属环境音                        | —（环境层）              |
+| 红线警告           | 高频谐波叠加（`redline_ratio` > 0.3），接近光速时更尖锐              | —（环境层）              |
+| 红线弹回           | 300Hz→60Hz 扫频下降                                   | `redline_bounce`   |
+| 碎片收集           | 440Hz→880Hz 上扬                                    | `fragment_collect` |
+| 跳跃               | 220Hz→330Hz 短促                                    | `jump`             |
+| 菜单悬停           | 800Hz 极短叮咚 (0.04s)                                 | `ui_tick`          |
+| 菜单确认           | 440→660Hz 上扫 (0.15s)                                | `ui_confirm`       |
+| 虫洞稳定化         | 60→180Hz 低频嗡鸣上升 (0.5s)                             | `wormhole_stabilize`|
+| 熵平台崩解         | 噪音爆发 200→40Hz 下降 (0.4s)                            | `platform_crumble` |
+| 量子裂隙预兆       | 300→600Hz 脉冲上升 (0.5s)                               | `fissure_warning`  |
+| 光钟滴答           | 1200Hz 极短敲击 (0.03s)                                 | `photon_tick`      |
+| 秩序能量收集       | 三音上琶音 523→659→784Hz (0.35s)                       | `order_collect`    |
 
 ***
 
@@ -359,7 +392,56 @@ scenes/
 
 ***
 
-## 十一、开发状态
+## 十一、趣味小游戏
+
+两个小游戏从关卡选择界面进入，短时体验（2-5 分钟），完成解锁专属图鉴。
+
+### 光钟工坊
+
+| 要素       | 内容                                                                |
+| -------- | ----------------------------------------------------------------- |
+| **物理原理** | 爱因斯坦光钟思想实验：运动 → 光子走斜边 → 滴答变长 → 时间膨胀 = γ                            |
+| **操作**   | ← → 调速（连续 + 惯性减速）                                                   |
+| **视觉**   | 左面板静止参考系（垂直反弹）+ 右面板实验室参考系（锯齿斜线 + 直角三角形辅助线 + 速度箭头）                     |
+| **HUD**   | 环形速度仪表 + γ 因子 + 速度 %c + 静止/运动钟滴答计数对比                                |
+| **完成条件** | 观察 ≥ 30 秒                                                          |
+| **图鉴**   | `light_clock`                                                     |
+
+### 虫洞工程师
+
+| 要素       | 内容                                                               |
+| -------- | ---------------------------------------------------------------- |
+| **物理原理** | 可穿越虫洞需要负能量（卡西米尔效应）维持打开，否则坍缩                                       |
+| **操作**   | F 键拖拽虫洞口（A 入口 / B 出口）和卡西米尔金属板                                      |
+| **机制**   | 推拢板 → 间距 < 80px → 负能量区 → 虫洞口在范围内 → 稳定开启（蓝）→ 信号粒子穿越 → 到达目标区        |
+| **视觉**   | 虫洞口闪烁橙（不稳）/ 稳定蓝 + 贝塞尔连线 + 卡西米尔板 + 负能量蓝光区 + 粒子拖尾 + 目标区虚线框             |
+| **完成条件** | 成功运输 3 个信号粒子到目标区                                                  |
+| **图鉴**   | `traversable_wormhole`                                           |
+
+***
+
+## 十二、彩蛋
+
+| 彩蛋            | 位置     | 内容                                                  | 图鉴             |
+| ------------- | ------ | --------------------------------------------------- | -------------- |
+| 双生子小屋         | M1-1 左侧 | 程序化房间，左 NPC 15× 倍速衰老 vs 右 NPC 正常流速。站立观察 2s 解锁       | `twin_paradox` |
+| 物理学家小屋        | W4 底层右侧 | 爱因斯坦（白爆发+胡须+西装）+ 霍金（轮椅+眼镜+绿屏）。E 键对话，每人 3 句循环名言。 | `physicists_cabin` |
+
+物理学家对话内容：
+
+**爱因斯坦**：
+1. "引力不是力，是时空的弯曲。我的场方程 Rμν - ½gμνR = 8πGTμν 说的就是这个。"
+2. "想象力比知识更重要。知识有限，想象力环绕世界。"
+3. "关于量子理论，我可能错了。'上帝不掷骰子'——但也许祂确实掷。"
+
+**霍金**：
+1. "我提出了时序保护猜想：物理定律禁止宏观时间旅行。大自然讨厌时间机器。"
+2. "记得仰望星空，而不是低头看脚下。试着理解你所看到的，思索宇宙为何存在。"
+3. "黑洞不是完全黑的——它们会辐射。这是我最骄傲的发现。"
+
+***
+
+## 十三、开发状态
 
 ### ✅ Phase 1：核心原型（世界 1）— 完成
 
@@ -367,7 +449,7 @@ scenes/
 - [x] M1-1（三重时间考验）+ 双生子小屋彩蛋
 - [x] M1-2（光速红线壁垒）
 - [x] M1-3（光锥边界教学关）
-- [x] 基础图鉴框架（4 词条 → 扩展至 18 词条）
+- [x] 基础图鉴框架（4 词条 → 扩展至 21 词条）
 - [x] 程序化音频合成
 - [x] HUD 系统（环形仪表 + γ 因子 + 时间流速条）
 
@@ -383,15 +465,20 @@ scenes/
 - [x] 上层：熵增崩解 + 秩序能量 + 昼夜循环
 - [x] 中层：多时区独立时间流速
 - [x] 底层：时间切片 + 独白叙事 + 结局触发
-- [x] 18 词条完整图鉴
+- [x] 21 词条完整图鉴
 
-### 待完成
+### ✅ Phase 4：打磨与 UI — 完成
 
-- [x] 主菜单场景
-- [x] 图鉴 UI 浏览界面
-- [x] 暂停菜单
-- [x] 关卡选择/过渡
-- [x] 趣味小游戏（光钟工坊、虫洞工程师）
-- [x] 爱因斯坦/霍金 NPC 彩蛋
-- [ ] 最终音效打磨
+- [x] 主菜单场景（含图鉴面板：分类筛选 + 进度条）
+- [x] 暂停菜单（继续 / 重新开始 / 返回选关 + ESC 关闭 + PROCESS_MODE_ALWAYS）
+- [x] 关卡选择界面（4 世界面板 + 11 关卡按钮三态 + 小游戏入口）
+- [x] 场景过渡系统（TransitionLayer autoload，淡入淡出 0.3/0.4s）
+- [x] 关卡完成面板（下一关自动跨世界 / 重新挑战 / 返回选关）
+- [x] 趣味小游戏：光钟工坊（双参考系光子动画 + 滴答对比 + 30s 观察解锁）
+- [x] 趣味小游戏：虫洞工程师（拖拽虫洞口/板 + 负能量稳定 + 粒子传送 3 次）
+- [x] 爱因斯坦/霍金 NPC 彩蛋（Polygon2D 人物 + E 键对话系统 + 循环名言）
+- [x] 最终音效打磨（10 种 SFX + 环境嗡鸣 + 熵噪音退化 + 软限幅防削波）
 
+### 全部完成 ✅
+
+项目 v1.0-pre 所有规划功能已实现完毕。
