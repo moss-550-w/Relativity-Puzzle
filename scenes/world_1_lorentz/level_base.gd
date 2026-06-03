@@ -137,8 +137,12 @@ func _on_level_completed(_name: String) -> void:
 	if _player and _player.has_method("set_frozen"):
 		_player.set_frozen(true)
 
+	var full := complete_text
+	if next_level_path != "":
+		full += "\n\n按 空格 进入下一关"
+
 	var msg := Label.new()
-	msg.text = complete_text
+	msg.text = full
 	msg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	msg.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	msg.add_theme_font_size_override("font_size", 36)
@@ -149,6 +153,13 @@ func _on_level_completed(_name: String) -> void:
 	layer.layer = 100
 	layer.add_child(msg)
 	add_child(layer)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	# 完成后按跳跃键进入下一关
+	if _level_done and next_level_path != "" and event.is_action_pressed("jump"):
+		GameState.current_level += 1
+		get_tree().change_scene_to_file(next_level_path)
 
 
 # ============================================================

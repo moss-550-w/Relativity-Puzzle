@@ -19,6 +19,13 @@ size = Vector2(600, 32)
 
 [node name="Level1_1" type="Node2D" unique_id=1547285248]
 script = ExtResource("1_ctrl")
+player_spawn = Vector2(100, 520)
+fall_y = 800.0
+level_center_x = 1400.0
+level_width = 2800.0
+complete_text = "[ 关卡完成: 时间膨胀 ]
+冲刺即时间，静止即永恒"
+next_level_path = "res://scenes/world_1_lorentz/level_1_2.tscn"
 
 [node name="FloorSpawn" type="StaticBody2D" parent="." unique_id=1820252636]
 position = Vector2(250, 620)
