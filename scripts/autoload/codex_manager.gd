@@ -62,6 +62,11 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "克尔黑洞的奇点是环状的——理论上有两个视界。若内视界消失，奇环将裸露在外——宇宙是否允许裸奇点存在？",
 		"category": "general_relativity"
 	},
+	"casimir_effect": {
+		"name": "卡西米尔效应与负能量",
+		"desc": "真空中两块极近金属板间产生吸引力——真空不空。板间能量密度低于真空零点，形成负能量区域。",
+		"category": "quantum_gravity"
+	},
 }
 
 # ---- 状态 ----

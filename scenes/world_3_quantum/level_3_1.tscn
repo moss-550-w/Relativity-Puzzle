@@ -1,0 +1,109 @@
+[gd_scene load_steps=10 format=3 uid="uid://blevel31001"]
+
+[ext_resource type="Script" path="res://scenes/world_3_quantum/level_3_1.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/mechanics/casimir_plates.gd" id="2_cp"]
+[ext_resource type="Script" path="res://scripts/objects/unstable_wormhole.gd" id="3_uw"]
+[ext_resource type="Script" path="res://scripts/objects/time_fragment.gd" id="4_tf"]
+
+[sub_resource type="RectangleShape2D" id="Floor_Main"]
+size = Vector2(700, 32)
+
+[sub_resource type="RectangleShape2D" id="Floor_Closed"]
+size = Vector2(200, 32)
+
+[sub_resource type="RectangleShape2D" id="Wall_Shape"]
+size = Vector2(30, 260)
+
+[sub_resource type="RectangleShape2D" id="Frag"]
+size = Vector2(80, 60)
+
+[sub_resource type="RectangleShape2D" id="WormCol"]
+size = Vector2(64, 64)
+
+; ===== Level Root =====
+[node name="Level3_1" type="Node2D"]
+script = ExtResource("1_ctrl")
+player_spawn = Vector2(100, 530)
+fall_y = 900.0
+level_center_x = 500.0
+level_width = 1200.0
+complete_text = "[ 关卡完成: 卡西米尔效应 ]
+真空并非虚空——两块极近金属板之间，
+负能量悄然涌现，虫洞随之稳定。"
+next_level_path = ""
+
+; ===== 主地面 (x=0~700, y=620) =====
+[node name="FloorMain" type="StaticBody2D" parent="."]
+position = Vector2(350, 620)
+collision_mask = 0
+
+[node name="ColMain" type="CollisionShape2D" parent="FloorMain"]
+shape = SubResource("Floor_Main")
+
+[node name="VisMain" type="ColorRect" parent="FloorMain"]
+offset_left = -350.0
+offset_top = -16.0
+offset_right = 350.0
+offset_bottom = 16.0
+color = Color(0.3, 0.3, 0.42, 1)
+
+; ===== 封闭墙 (x=720, 高 260, 分隔内外) =====
+[node name="Wall" type="StaticBody2D" parent="."]
+position = Vector2(720, 490)
+collision_layer = 1
+collision_mask = 0
+
+[node name="ColWall" type="CollisionShape2D" parent="Wall"]
+shape = SubResource("Wall_Shape")
+
+[node name="VisWall" type="ColorRect" parent="Wall"]
+offset_left = -15.0
+offset_top = -130.0
+offset_right = 15.0
+offset_bottom = 130.0
+color = Color(0.25, 0.22, 0.35, 1)
+
+; ===== 卡西米尔板对 (管理器, 板位置由脚本控制) =====
+[node name="CasimirPlates" type="Node2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("2_cp")
+plate_a_pos = Vector2(320, 590)
+plate_b_pos = Vector2(550, 590)
+threshold = 100.0
+
+; ===== 不稳定虫洞 (x=700, y=590, 墙左侧) =====
+[node name="UnstableWormhole" type="Area2D" parent="."]
+position = Vector2(700, 590)
+script = ExtResource("3_uw")
+flicker_on_time = 0.3
+flicker_off_time = 0.3
+wormhole_radius = 32.0
+exit_pos = Vector2(780, 590)
+
+[node name="ColWorm" type="CollisionShape2D" parent="UnstableWormhole"]
+shape = SubResource("WormCol")
+
+; ===== 封闭空间地面 (x=730~930, y=620) =====
+[node name="FloorClosed" type="StaticBody2D" parent="."]
+position = Vector2(830, 620)
+collision_mask = 0
+
+[node name="ColClosed" type="CollisionShape2D" parent="FloorClosed"]
+shape = SubResource("Floor_Closed")
+
+[node name="VisClosed" type="ColorRect" parent="FloorClosed"]
+offset_left = -100.0
+offset_top = -16.0
+offset_right = 100.0
+offset_bottom = 16.0
+color = Color(0.28, 0.3, 0.38, 1)
+
+; ===== 终点碎片 (x=860, y=590, 封闭空间内) =====
+[node name="TimeFragment" type="Area2D" parent="."]
+position = Vector2(860, 590)
+collision_mask = 2
+script = ExtResource("4_tf")
+codex_id = "casimir_effect"
+
+[node name="ColFrag" type="CollisionShape2D" parent="TimeFragment"]
+shape = SubResource("Frag")
