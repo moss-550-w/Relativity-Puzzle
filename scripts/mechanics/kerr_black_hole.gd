@@ -218,16 +218,16 @@ func _create_ring_collider() -> void:
 # ============================================================
 
 func _create_checkpoints() -> void:
-	_make_checkpoint("cp1", checkpoint_1_pos)
+	_make_checkpoint("cp1", checkpoint_1_pos, 100.0)   # 大范围覆盖外视界入口
 	_make_checkpoint("cp2", checkpoint_2_pos)
 	_make_checkpoint("core", core_pos)
 
 
-func _make_checkpoint(id: String, pos: Vector2) -> void:
+func _make_checkpoint(id: String, pos: Vector2, radius: float = 24.0) -> void:
 	var cp := Area2D.new(); cp.name = "CP_" + id
 	cp.collision_layer = 0; cp.collision_mask = 2; cp.position = pos
 	var col := CollisionShape2D.new()
-	var circle := CircleShape2D.new(); circle.radius = 24.0
+	var circle := CircleShape2D.new(); circle.radius = radius
 	col.shape = circle; cp.add_child(col)
 	cp.body_entered.connect(func(_b): _on_checkpoint(id, pos))
 	add_child(cp)
