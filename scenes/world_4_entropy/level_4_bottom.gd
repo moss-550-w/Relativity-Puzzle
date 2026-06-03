@@ -13,6 +13,8 @@ var _ending_triggered: bool = false
 var _wheeler_unlocked: bool = false
 var _illusion_unlocked: bool = false
 
+const PhysicistsCabin = preload("res://scripts/npc/einstein_hawking_npc.gd")
+
 const MONOLOGUES: Array[Dictionary] = [
 	{ "time": 10.0, "text": "时间不流动。过去和未来早已同在。" },
 	{ "time": 30.0, "text": "你的一路——加速、减速、回溯——都只是视角的切换。" },
@@ -33,6 +35,7 @@ func _on_level_ready() -> void:
 	EntropySystem.pause_entropy(true)
 	TimeManager.gravity_factor = 1.0
 	_create_monologue_label()
+	_spawn_physicists_cabin()
 
 
 func _create_monologue_label() -> void:
@@ -54,7 +57,57 @@ func _create_monologue_label() -> void:
 	add_child(cl)
 
 
-func _process(delta: float) -> void:
+func _spawn_physicists_cabin() -> void:
+	# 在右侧远处放置入口标记和物理学家小屋
+	var cabin_x: float = level_center_x + level_width / 2.0 - 300.0  # x≈1700
+	var cabin_y: float = 560.0
+
+	# 地板通道（延伸至小屋入口）
+	var passage := StaticBody2D.new()
+	passage.name = "CabinFloor"
+	passage.position = Vector2(cabin_x - 350, cabin_y + 40)
+	passage.collision_mask = 0
+	var pcol := CollisionShape2D.new()
+	var prect := RectangleShape2D.new()
+	prect.size = Vector2(700, 32)
+	pcol.shape = prect
+	passage.add_child(pcol)
+	var pvis := ColorRect.new()
+	pvis.name = "Visual"
+	pvis.offset_left = -350.0
+	pvis.offset_top = -16.0
+	pvis.offset_right = 350.0
+	pvis.offset_bottom = 16.0
+	pvis.color = Color(0.25, 0.25, 0.35, 1)
+	passage.add_child(pvis)
+	add_child(passage)
+
+	# 提示箭头
+	var arrow := Label.new()
+	arrow.name = "CabinHint"
+	arrow.text = "→  ?"
+	arrow.position = Vector2(cabin_x - 420, cabin_y - 20)
+	arrow.add_theme_font_size_override("font_size", 16)
+	arrow.add_theme_color_override("font_color", Color(0.3, 0.7, 1.0, 0.4))
+	add_child(arrow)
+
+	# 入口光点
+	var marker := Polygon2D.new()
+	marker.name = "CabinMarker"
+	marker.color = Color(0.3, 0.8, 1.0, 0.3)
+	marker.polygon = PackedVector2Array([
+		Vector2(0, -8), Vector2(6, 0),
+		Vector2(0, 8), Vector2(-6, 0),
+	])
+	marker.position = Vector2(cabin_x - 400, cabin_y + 32)
+	add_child(marker)
+
+	# 小屋房间（Node2D + 脚本注入）
+	var room := Node2D.new()
+	room.name = "PhysicistsCabin"
+	room.set_script(PhysicistsCabin)
+	room.position = Vector2(cabin_x, cabin_y)
+	add_child(room)
 	if _level_done or _ending_triggered:
 		return
 

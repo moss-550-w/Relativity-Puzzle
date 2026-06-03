@@ -107,6 +107,11 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "虫洞是时空的捷径，但维持其开启需要负能量——卡西米尔效应是已知唯一能产生负能量的物理机制。没有负能量，虫洞在形成瞬间就会坍缩。",
 		"category": "general_relativity"
 	},
+	"physicists_cabin": {
+		"name": "物理学家的午后",
+		"desc": "在世界尽头的静止空间中，两位巨匠仍在争论时间的本质。爱因斯坦相信时空是光滑的几何，霍金则看到量子泡沫中的信息悖论。科学，永远是一场未完成的对话。",
+		"category": "entropy_cosmology"
+	},
 }
 
 # ---- 状态 ----

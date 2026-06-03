@@ -9,6 +9,7 @@ const ENTRY_ORDER: Array[String] = [
 	"kerr_black_hole", "ergosphere", "ring_singularity",
 	"casimir_effect", "quantum_vacuum", "chronology_protection",
 	"entropy_arrow", "block_universe", "wheeler_dewitt", "time_illusion",
+	"physicists_cabin",
 ]
 
 const CATEGORIES: Array[Dictionary] = [
@@ -25,6 +26,7 @@ const ENTRY_CATEGORY: Dictionary = {
 	"kerr_black_hole": 1, "ergosphere": 1, "ring_singularity": 1,
 	"casimir_effect": 2, "quantum_vacuum": 2, "chronology_protection": 2,
 	"entropy_arrow": 3, "block_universe": 3, "wheeler_dewitt": 3, "time_illusion": 3,
+	"physicists_cabin": 3,
 }
 
 var _title_label: Label = null
@@ -519,6 +521,7 @@ func _entry_fallback(entry_id: String) -> Dictionary:
 		"time_illusion": {"name": "时间的主观性错觉", "desc": "", "category": "entropy_cosmology"},
 		"light_clock": {"name": "光钟与时间膨胀", "desc": "", "category": "special_relativity"},
 		"traversable_wormhole": {"name": "可穿越虫洞", "desc": "", "category": "general_relativity"},
+		"physicists_cabin": {"name": "物理学家的午后", "desc": "", "category": "entropy_cosmology"},
 	}
 	return fallbacks.get(entry_id, {"name": entry_id, "desc": "", "category": "unknown"})
 
