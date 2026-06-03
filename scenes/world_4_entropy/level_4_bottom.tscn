@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://blevel4b001"]
+
+[ext_resource type="Script" path="res://scenes/world_4_entropy/level_4_bottom.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/mechanics/time_slice.gd" id="2_ts"]
+
+[sub_resource type="RectangleShape2D" id="Floor_Long"]
+size = Vector2(2000, 32)
+
+[sub_resource type="RectangleShape2D" id="Floor_Mid"]
+size = Vector2(300, 32)
+
+[sub_resource type="RectangleShape2D" id="Floor_High"]
+size = Vector2(300, 32)
+
+; ===== Level Root =====
+[node name="Level4Bottom" type="Node2D"]
+script = ExtResource("1_ctrl")
+player_spawn = Vector2(100, 530)
+fall_y = 900.0
+level_center_x = 800.0
+level_width = 1800.0
+complete_text = ""
+next_level_path = ""
+
+; ===== 主地面 (x=0~2000) =====
+[node name="FloorMain" type="StaticBody2D" parent="."]
+position = Vector2(1000, 620)
+collision_mask = 0
+
+[node name="ColMain" type="CollisionShape2D" parent="FloorMain"]
+shape = SubResource("Floor_Long")
+
+[node name="VisMain" type="ColorRect" parent="FloorMain"]
+offset_left = -1000.0
+offset_top = -16.0
+offset_right = 1000.0
+offset_bottom = 16.0
+color = Color(0.15, 0.15, 0.22, 1)
+
+; ===== 时间切片组 1: 平台 (x=350, y=580) =====
+[node name="SliceGroup1" type="Node2D" parent="."]
+position = Vector2(350, 580)
+script = ExtResource("2_ts")
+slice_count = 5
+slice_spacing = 80.0
+slice_size = Vector2(64, 20)
+
+; ===== 时间切片组 2: 柱体 (x=750, y=540) =====
+[node name="SliceGroup2" type="Node2D" parent="."]
+position = Vector2(750, 540)
+script = ExtResource("2_ts")
+slice_count = 5
+slice_spacing = 70.0
+slice_size = Vector2(32, 80)
+
+; ===== 时间切片组 3: 平台 (x=1100, y=580) =====
+[node name="SliceGroup3" type="Node2D" parent="."]
+position = Vector2(1100, 580)
+script = ExtResource("2_ts")
+slice_count = 5
+slice_spacing = 80.0
+slice_size = Vector2(64, 20)
+
+; ===== 中层平台 (踩踏观察用) (x=750, y=470) =====
+[node name="FloorObserve" type="StaticBody2D" parent="."]
+position = Vector2(750, 470)
+collision_mask = 0
+
+[node name="ColObs" type="CollisionShape2D" parent="FloorObserve"]
+shape = SubResource("Floor_Mid")
+
+[node name="VisObs" type="ColorRect" parent="FloorObserve"]
+offset_left = -150.0
+offset_top = -16.0
+offset_right = 150.0
+offset_bottom = 16.0
+color = Color(0.18, 0.18, 0.25, 1)
+
+; ===== 观察点平台 (x=1100, y=470) =====
+[node name="FloorView" type="StaticBody2D" parent="."]
+position = Vector2(1100, 470)
+collision_mask = 0
+
+[node name="ColView" type="CollisionShape2D" parent="FloorView"]
+shape = SubResource("Floor_High")
+
+[node name="VisView" type="ColorRect" parent="FloorView"]
+offset_left = -150.0
+offset_top = -16.0
+offset_right = 150.0
+offset_bottom = 16.0
+color = Color(0.18, 0.18, 0.25, 1)

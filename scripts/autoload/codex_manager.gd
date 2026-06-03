@@ -87,6 +87,16 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "过去、现在、未来同样真实存在——时间是四维时空的一个维度，而非流动的河流。不同时区只是不同的切片。",
 		"category": "entropy_cosmology"
 	},
+	"wheeler_dewitt": {
+		"name": "惠勒-德维特方程",
+		"desc": "Ĥ|Ψ⟩ = 0。在量子引力层面，时间变量从方程中消失。时间可能不是宇宙的基本要素——它是宏观涌现的。",
+		"category": "entropy_cosmology"
+	},
+	"time_illusion": {
+		"name": "时间的主观性错觉",
+		"desc": "如果时间不是基本量，那么'流动'的感觉从何而来？也许时间只是意识为理解块状宇宙而创造的故事。",
+		"category": "entropy_cosmology"
+	},
 }
 
 # ---- 状态 ----
