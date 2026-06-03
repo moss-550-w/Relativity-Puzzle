@@ -54,7 +54,7 @@ func _on_collect(body: Node2D) -> void:
 		return
 	_collected = true
 	EntropySystem.add_order_resource()
-	AudioManager.play_sfx("fragment_collect")
+	AudioManager.play_sfx("order_collect")
 
 	var tw := create_tween()
 	tw.tween_property(_visual, "scale", Vector2(2.5, 2.5), 0.3)

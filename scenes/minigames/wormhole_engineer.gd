@@ -141,7 +141,7 @@ func _update_wormhole() -> void:
 			if portal_pos.distance_to(_neg_zone_center) < _neg_zone_radius + PORTAL_RADIUS:
 				_wormhole_stable = true
 	if _wormhole_stable and not was_stable:
-		AudioManager.play_sfx("fragment_collect")
+		AudioManager.play_sfx("wormhole_stabilize")
 
 
 # ============================================================

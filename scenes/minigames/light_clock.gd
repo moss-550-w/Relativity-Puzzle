@@ -299,7 +299,7 @@ func _process(delta: float) -> void:
 	if _rest_phase >= 1.0:
 		_rest_phase -= 1.0
 		_rest_ticks += 1
-		AudioManager.play_sfx("jump")
+		AudioManager.play_sfx("photon_tick")
 
 	# 运动钟：滴答周期 = rest_period * γ（时间膨胀）
 	var moving_period: float = rest_period * _gamma

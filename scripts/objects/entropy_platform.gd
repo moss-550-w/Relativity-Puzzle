@@ -57,10 +57,14 @@ func _ready() -> void:
 		add_child(crack)
 
 
+var _crumble_stage: int = 0  # 0=完好, 1=裂缝, 2=崩解, 3=消失
+
+
 func _process(_delta: float) -> void:
 	var e: float = EntropySystem.global_entropy
 	_update_visual(e)
 	_update_collision(e)
+	_check_crumble_audio(e)
 
 
 func _update_visual(e: float) -> void:
@@ -103,6 +107,15 @@ func _update_collision(e: float) -> void:
 	if _col_shape and _col_shape.shape is RectangleShape2D:
 		(_col_shape.shape as RectangleShape2D).size.x = _full_width * scale
 	_col_shape.disabled = e >= 1.0
+
+
+func _check_crumble_audio(e: float) -> void:
+	if e > 0.5 and _crumble_stage < 2:
+		_crumble_stage = 2
+		AudioManager.play_sfx("platform_crumble")
+	elif e > 0.2 and _crumble_stage < 1:
+		_crumble_stage = 1
+		AudioManager.play_sfx("platform_crumble")
 
 
 func reset_state() -> void:

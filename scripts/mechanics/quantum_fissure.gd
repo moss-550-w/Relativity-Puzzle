@@ -180,6 +180,7 @@ func _process(delta: float) -> void:
 func _enter_warning() -> void:
 	current_state = State.WARNING
 	_state_timer = 0.0
+	AudioManager.play_sfx("fissure_warning")
 	# 粒子开始向入口汇聚
 	for dot in _particles:
 		dot.set_meta("converging", true)
