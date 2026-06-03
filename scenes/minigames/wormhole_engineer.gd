@@ -249,6 +249,8 @@ func _complete() -> void:
 # ============================================================
 
 func _draw() -> void:
+	# 整体背景（确保始终有渲染内容）
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.02, 0.03, 0.08, 1.0), true)
 	_draw_game_area()
 	_draw_portals()
 	_draw_casimir_plates()
@@ -261,7 +263,7 @@ func _draw_game_area() -> void:
 	draw_rect(Rect2(40, 300, 80, 120), Color(0.04, 0.06, 0.14, 0.5), true)
 	draw_line(Vector2(120, 360), Vector2(120, 360), Color(0.3, 0.6, 1.0, 0.3), 2.0)
 	var emit_label_pos: Vector2 = Vector2(60, 430)
-	draw_string(ThemeDB.fallback_font, emit_label_pos, "发射区", HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color(0.4, 0.7, 1.0, 0.4))
+	draw_string(ThemeDB.fallback_font, emit_label_pos, "发射区", 1, -1, 10, Color(0.4, 0.7, 1.0, 0.4))
 
 	draw_rect(Rect2(1140, 300, 100, 120), Color(0.06, 0.04, 0.14, 0.5), true)
 	for i in range(0, 100, 12):
@@ -272,7 +274,7 @@ func _draw_game_area() -> void:
 		draw_rect(Rect2(1238, 300 + i, 2, 8), C_GOLD * Color(1, 1, 1, 0.3), true)
 
 	var target_label_pos: Vector2 = Vector2(1190, 430)
-	draw_string(ThemeDB.fallback_font, target_label_pos, "目标区", HORIZONTAL_ALIGNMENT_CENTER, -1, 10, Color(1.0, 0.85, 0.3, 0.5))
+	draw_string(ThemeDB.fallback_font, target_label_pos, "目标区", 1, -1, 10, Color(1.0, 0.85, 0.3, 0.5))
 
 
 func _draw_portals() -> void:
@@ -300,10 +302,10 @@ func _draw_portals() -> void:
 			draw_circle(portal_pos + Vector2(cos(angle + PI), sin(angle + PI)) * (PORTAL_RADIUS - 3), 3.0, Color(col.r, col.g, col.b, 0.6))
 
 		var lbl_pos: Vector2 = portal_pos + Vector2(-18, PORTAL_RADIUS + 16)
-		draw_string(ThemeDB.fallback_font, lbl_pos, label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, col)
+		draw_string(ThemeDB.fallback_font, lbl_pos, label_text, 0, -1, 10, col)
 
 		var f_pos: Vector2 = portal_pos + Vector2(-10, PORTAL_RADIUS + 30)
-		draw_string(ThemeDB.fallback_font, f_pos, "[F]", HORIZONTAL_ALIGNMENT_LEFT, -1, 9, Color(0.4, 0.7, 1.0, 0.5))
+		draw_string(ThemeDB.fallback_font, f_pos, "[F]", 0, -1, 9, Color(0.4, 0.7, 1.0, 0.5))
 
 	# 虫洞连线
 	if _wormhole_stable:
@@ -329,10 +331,10 @@ func _draw_casimir_plates() -> void:
 		draw_rect(Rect2(px - PLATE_SIZE.x / 2.0 - 2, _plate_y + PLATE_SIZE.y / 2.0, PLATE_SIZE.x + 4, 2), Color(0.2, 0.5, 1.0, border_alpha), true)
 
 		var label_pos: Vector2 = Vector2(px - 12, _plate_y + PLATE_SIZE.y / 2.0 + 4)
-		draw_string(ThemeDB.fallback_font, label_pos, p["label"], HORIZONTAL_ALIGNMENT_LEFT, -1, 9, Color(0.4, 0.7, 1.0, 0.6))
+		draw_string(ThemeDB.fallback_font, label_pos, p["label"], 0, -1, 9, Color(0.4, 0.7, 1.0, 0.6))
 
 		var f_pos: Vector2 = Vector2(px - 10, _plate_y + PLATE_SIZE.y / 2.0 + 18)
-		draw_string(ThemeDB.fallback_font, f_pos, "[F]", HORIZONTAL_ALIGNMENT_LEFT, -1, 9, Color(0.4, 0.7, 1.0, 0.45))
+		draw_string(ThemeDB.fallback_font, f_pos, "[F]", 0, -1, 9, Color(0.4, 0.7, 1.0, 0.45))
 
 	# 板间距离指示
 	var gap: float = absf(_plate_a_x - _plate_b_x)
@@ -344,11 +346,11 @@ func _draw_casimir_plates() -> void:
 	var gap_color: Color = C_GOLD if _neg_energy_active else Color(0.4, 0.5, 0.7, 0.5)
 	var gap_text: String = "%.0f px" % gap
 	var gap_pos: Vector2 = Vector2(mid_x - 20, _plate_y - PLATE_SIZE.y / 2.0 - 24)
-	draw_string(ThemeDB.fallback_font, gap_pos, gap_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, gap_color)
+	draw_string(ThemeDB.fallback_font, gap_pos, gap_text, 0, -1, 10, gap_color)
 
 	if _neg_energy_active:
 		var ok_pos: Vector2 = Vector2(mid_x - 40, _plate_y - PLATE_SIZE.y / 2.0 - 38)
-		draw_string(ThemeDB.fallback_font, ok_pos, "✓ 负能量", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, C_GOLD)
+		draw_string(ThemeDB.fallback_font, ok_pos, "✓ 负能量", 0, -1, 10, C_GOLD)
 
 
 func _draw_neg_energy_zone() -> void:
@@ -385,11 +387,11 @@ func _draw_labels() -> void:
 		status_text = "虫洞状态: 不稳定 ◇"
 		status_col = Color(1.0, 0.4, 0.15, 0.8)
 	var sp: Vector2 = Vector2(520, 636)
-	draw_string(ThemeDB.fallback_font, sp, status_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, status_col)
+	draw_string(ThemeDB.fallback_font, sp, status_text, 0, -1, 12, status_col)
 
 	if _completed:
 		var cp: Vector2 = Vector2(520, 660)
-		draw_string(ThemeDB.fallback_font, cp, "任务完成！按 ESC 返回", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, C_GOLD)
+		draw_string(ThemeDB.fallback_font, cp, "任务完成！按 ESC 返回", 0, -1, 12, C_GOLD)
 
 
 # ============================================================

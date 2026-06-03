@@ -108,6 +108,9 @@ func _spawn_physicists_cabin() -> void:
 	room.set_script(PhysicistsCabin)
 	room.position = Vector2(cabin_x, cabin_y)
 	add_child(room)
+
+
+func _process(delta: float) -> void:
 	if _level_done or _ending_triggered:
 		return
 
