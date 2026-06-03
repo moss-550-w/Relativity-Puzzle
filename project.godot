@@ -24,6 +24,7 @@ CodexManager="*res://scripts/autoload/codex_manager.gd"
 AudioManager="*res://scripts/autoload/audio_manager.gd"
 PlayerMetrics="*res://scripts/autoload/player_metrics.gd"
 EntropySystem="*res://scripts/autoload/entropy_system.gd"
+TransitionLayer="*res://scripts/autoload/transition_layer.gd"
 
 [display]
 

@@ -44,6 +44,7 @@ func _ready() -> void:
 	_build_buttons()
 	_build_codex_panel()
 	_build_version()
+	TransitionLayer.fade_in()
 
 
 # ============================================================
@@ -534,7 +535,7 @@ func _make_panel_rect(pos: Vector2, sz: Vector2, col: Color) -> ColorRect:
 # ============================================================
 
 func _on_start() -> void:
-	get_tree().change_scene_to_file("res://scenes/world_1_lorentz/level_1_1.tscn")
+	TransitionLayer.transition_to("res://scenes/ui/level_select.tscn")
 
 
 func _on_quit() -> void:

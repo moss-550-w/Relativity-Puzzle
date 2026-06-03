@@ -36,6 +36,7 @@ func _ready() -> void:
 	GameState.puzzle_reset.connect(_on_puzzle_reset)
 	GameState.level_completed.connect(_on_level_completed)
 	_on_level_ready()
+	TransitionLayer.fade_in()
 
 
 ## 子类钩子：所有基础设施就绪后调用
@@ -131,6 +132,9 @@ func _on_puzzle_reset() -> void:
 	_reset_level()
 
 
+var _complete_layer: CanvasLayer = null
+
+
 func _on_level_completed(_name: String) -> void:
 	if _level_done:
 		return
@@ -138,22 +142,102 @@ func _on_level_completed(_name: String) -> void:
 	if _player and _player.has_method("set_frozen"):
 		_player.set_frozen(true)
 
-	var full := complete_text
-	if next_level_path != "":
-		full += "\n\n按 空格 进入下一关"
+	var next_level: Dictionary = GameState.get_next_level(GameState.current_world, GameState.current_level)
 
+	_complete_layer = CanvasLayer.new()
+	_complete_layer.name = "CompleteLayer"
+	_complete_layer.layer = 100
+	_complete_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_complete_layer)
+
+	# 半透明遮罩
+	var overlay := ColorRect.new()
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.color = Color(0.0, 0.0, 0.0, 0.6)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	_complete_layer.add_child(overlay)
+
+	# 面板
+	var panel := Panel.new()
+	panel.name = "CompletePanel"
+	panel.position = Vector2(340, 160)
+	panel.size = Vector2(600, 400)
+	var psb := StyleBoxFlat.new()
+	psb.bg_color = Color(0.03, 0.06, 0.14, 0.95)
+	psb.border_color = Color(0.2, 0.8, 1.0, 0.6)
+	psb.set_border_width_all(2)
+	psb.border_width_left = 4
+	psb.set_corner_radius_all(10)
+	psb.shadow_color = Color(0.1, 0.6, 1.0, 0.25)
+	psb.shadow_size = 20
+	panel.add_theme_stylebox_override("panel", psb)
+	_complete_layer.add_child(panel)
+
+	# 标题
+	var title := Label.new()
+	title.text = "◆  关卡完成"
+	title.position = Vector2(0, 30)
+	title.size = Vector2(600, 40)
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 30)
+	title.add_theme_color_override("font_color", Color(0.2, 0.8, 1.0, 1.0))
+	panel.add_child(title)
+
+	# 完成文案
 	var msg := Label.new()
-	msg.text = full
+	msg.text = complete_text
+	msg.position = Vector2(40, 85)
+	msg.size = Vector2(520, 40)
 	msg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	msg.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	msg.add_theme_font_size_override("font_size", 36)
+	msg.add_theme_font_size_override("font_size", 20)
 	msg.add_theme_color_override("font_color", Color.GOLD)
-	msg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel.add_child(msg)
 
-	var layer := CanvasLayer.new()
-	layer.layer = 100
-	layer.add_child(msg)
-	add_child(layer)
+	# 按钮
+	var btn_y := 160.0
+	var btns: Array = []
+
+	if not next_level.is_empty():
+		btns.append({"text": "▶  下一关", "cb": func():
+			GameState.current_world = next_level.get("world", GameState.current_world)
+			GameState.current_level = next_level["id"]
+			TransitionLayer.transition_to(next_level["scene"])
+		})
+
+	btns.append({"text": "↺  重新挑战", "cb": func():
+		if _complete_layer:
+			_complete_layer.queue_free()
+			_complete_layer = null
+		_level_done = false
+		GameState.reset_current_puzzle()
+	})
+
+	btns.append({"text": "◆  返回选关", "cb": func():
+		TransitionLayer.transition_to("res://scenes/ui/level_select.tscn")
+	})
+
+	for i in btns.size():
+		var btn := Button.new()
+		btn.text = btns[i]["text"]
+		btn.position = Vector2(190, btn_y + i * 60)
+		btn.size = Vector2(220, 44)
+		btn.add_theme_font_size_override("font_size", 17)
+		btn.pressed.connect(btns[i]["cb"])
+		_pause_style_btn(btn)
+		panel.add_child(btn)
+
+	# 底部提示
+	var hint := Label.new()
+	if not next_level.is_empty():
+		hint.text = "按 空格 进入下一关"
+	else:
+		hint.text = "恭喜！你已完成本世界全部关卡"
+	hint.position = Vector2(0, 360)
+	hint.size = Vector2(600, 20)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	hint.add_theme_font_size_override("font_size", 11)
+	hint.add_theme_color_override("font_color", Color(0.3, 0.5, 0.7, 0.5))
+	panel.add_child(hint)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -162,10 +246,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		_toggle_pause()
 		return
 
-	# 完成后按跳跃键进入下一关
-	if _level_done and next_level_path != "" and event.is_action_pressed("jump"):
-		GameState.current_level += 1
-		get_tree().change_scene_to_file(next_level_path)
+	# 完成后按跳跃/空格进入下一关
+	if _level_done and event.is_action_pressed("jump"):
+		var next_level: Dictionary = GameState.get_next_level(GameState.current_world, GameState.current_level)
+		if not next_level.is_empty():
+			GameState.current_world = next_level.get("world", GameState.current_world)
+			GameState.current_level = next_level["id"]
+			TransitionLayer.transition_to(next_level["scene"])
 
 
 # ============================================================
@@ -235,7 +322,7 @@ func _build_pause_menu() -> void:
 	var btns := [
 		{"text": "▶  继续游戏", "cb": func(): _toggle_pause()},
 		{"text": "↺  重新开始", "cb": func(): _toggle_pause(); GameState.reset_current_puzzle()},
-		{"text": "🏠  返回主菜单", "cb": func(): _toggle_pause(); get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")},
+		{"text": "🏠  返回选关", "cb": func(): _toggle_pause(); TransitionLayer.transition_to("res://scenes/ui/level_select.tscn")},
 	]
 	for i in btns.size():
 		var btn := Button.new()
@@ -299,9 +386,16 @@ func _pause_style_btn(btn: Button) -> void:
 
 func _reset_level() -> void:
 	TimeManager.reset()
+	# 清理完成面板
+	if _complete_layer:
+		_complete_layer.queue_free()
+		_complete_layer = null
+	_level_done = false
 	if _player:
 		_player.velocity = Vector2.ZERO
 		_player.global_position = player_spawn
+		if _player.has_method("set_frozen"):
+			_player.set_frozen(false)
 	for node in _resettables:
 		if is_instance_valid(node) and node.has_method("reset_state"):
 			node.reset_state()

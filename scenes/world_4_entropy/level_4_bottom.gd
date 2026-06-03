@@ -97,6 +97,10 @@ func _check_ending() -> void:
 	if _idle_time < 120.0:
 		return
 	_ending_triggered = true
+
+	# 标记底层关卡完成
+	GameState.mark_level_completed(GameState.current_world, GameState.current_level)
+
 	var ending: int = PlayerMetrics.determine_ending()
 
 	if _player and _player.has_method("set_frozen"):
@@ -112,6 +116,19 @@ func _check_ending() -> void:
 		_:
 			ending_text = "[ 奔赴未来 ]\n\n你选择向前。\n未来永远是开放的。"
 
+	var layer := CanvasLayer.new()
+	layer.name = "EndingLayer"
+	layer.layer = 100
+	layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(layer)
+
+	# 半透明遮罩
+	var overlay := ColorRect.new()
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.color = Color(0.0, 0.0, 0.0, 0.7)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	layer.add_child(overlay)
+
 	var msg := Label.new()
 	msg.text = ending_text
 	msg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -119,8 +136,30 @@ func _check_ending() -> void:
 	msg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	msg.add_theme_font_size_override("font_size", 36)
 	msg.add_theme_color_override("font_color", Color.GOLD)
-
-	var layer := CanvasLayer.new()
-	layer.layer = 100
 	layer.add_child(msg)
-	add_child(layer)
+
+	# 返回按钮
+	var btn := Button.new()
+	btn.text = "◆  返回时空图"
+	btn.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	btn.position = Vector2(-110, -60)
+	btn.size = Vector2(220, 44)
+	btn.add_theme_font_size_override("font_size", 16)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.03, 0.06, 0.14, 0.9)
+	sb.border_color = Color(0.2, 0.8, 1.0, 0.5)
+	sb.set_border_width_all(2)
+	sb.set_corner_radius_all(6)
+	btn.add_theme_stylebox_override("normal", sb)
+	var sb_h := StyleBoxFlat.new()
+	sb_h.bg_color = Color(0.06, 0.12, 0.22, 0.95)
+	sb_h.border_color = Color(0.2, 0.8, 1.0, 0.8)
+	sb_h.set_border_width_all(2)
+	sb_h.set_corner_radius_all(6)
+	sb_h.shadow_color = Color(0.1, 0.6, 1.0, 0.3)
+	sb_h.shadow_size = 12
+	btn.add_theme_stylebox_override("hover", sb_h)
+	btn.add_theme_color_override("font_color", Color(0.2, 0.8, 1.0, 0.8))
+	btn.add_theme_color_override("font_hover_color", Color.WHITE)
+	btn.pressed.connect(func(): TransitionLayer.transition_to("res://scenes/ui/level_select.tscn"))
+	layer.add_child(btn)
