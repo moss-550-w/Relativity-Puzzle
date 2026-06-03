@@ -67,6 +67,11 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "真空中两块极近金属板间产生吸引力——真空不空。板间能量密度低于真空零点，形成负能量区域。",
 		"category": "quantum_gravity"
 	},
+	"quantum_vacuum": {
+		"name": "量子真空涨落",
+		"desc": "真空中虚粒子对不断创生湮灭——看似空无一物之处，实则是沸腾的量子泡沫。裂隙即是涨落的宏观显现。",
+		"category": "quantum_gravity"
+	},
 }
 
 # ---- 状态 ----

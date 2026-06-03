@@ -1,0 +1,169 @@
+[gd_scene format=3 uid="uid://blevel32001"]
+
+[ext_resource type="Script" path="res://scenes/world_3_quantum/level_3_2.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/mechanics/quantum_fissure.gd" id="2_qf"]
+[ext_resource type="Script" path="res://scripts/objects/time_fragment.gd" id="3_tf"]
+
+[sub_resource type="RectangleShape2D" id="Floor_A"]
+size = Vector2(400, 32)
+
+[sub_resource type="RectangleShape2D" id="Floor_B"]
+size = Vector2(400, 32)
+
+[sub_resource type="RectangleShape2D" id="Floor_C"]
+size = Vector2(200, 32)
+
+[sub_resource type="RectangleShape2D" id="Wall_Shape"]
+size = Vector2(20, 260)
+
+[sub_resource type="CircleShape2D" id="Fissure_Col"]
+radius = 28.0
+
+[sub_resource type="CircleShape2D" id="Worm_Col"]
+radius = 32.0
+
+[sub_resource type="RectangleShape2D" id="Frag_Shape"]
+size = Vector2(80, 60)
+
+; ===== Level Root =====
+[node name="Level3_2" type="Node2D"]
+script = ExtResource("1_ctrl")
+player_spawn = Vector2(100, 530)
+fall_y = 900.0
+level_center_x = 520.0
+level_width = 1200.0
+complete_text = "[ 关卡完成: 量子真空涨落 ]
+真空中不断涌现湮灭的微观虫洞——
+观测的瞬间，你让可能性坍缩为现实。"
+next_level_path = ""
+
+; ===== 房间 A 地面 (x=0~400) =====
+[node name="FloorA" type="StaticBody2D" parent="."]
+position = Vector2(200, 620)
+collision_mask = 0
+
+[node name="ColA" type="CollisionShape2D" parent="FloorA"]
+shape = SubResource("Floor_A")
+
+[node name="VisA" type="ColorRect" parent="FloorA"]
+offset_left = -200.0
+offset_top = -16.0
+offset_right = 200.0
+offset_bottom = 16.0
+color = Color(0.28, 0.28, 0.4, 1)
+
+; ===== 墙 AB (x=410) =====
+[node name="WallAB" type="StaticBody2D" parent="."]
+position = Vector2(410, 490)
+collision_layer = 1
+collision_mask = 0
+
+[node name="ColAB" type="CollisionShape2D" parent="WallAB"]
+shape = SubResource("Wall_Shape")
+
+[node name="VisAB" type="ColorRect" parent="WallAB"]
+offset_left = -10.0
+offset_top = -130.0
+offset_right = 10.0
+offset_bottom = 130.0
+color = Color(0.22, 0.2, 0.35, 1)
+
+; ===== 房间 B 地面 (x=420~820) =====
+[node name="FloorB" type="StaticBody2D" parent="."]
+position = Vector2(620, 620)
+collision_mask = 0
+
+[node name="ColB" type="CollisionShape2D" parent="FloorB"]
+shape = SubResource("Floor_B")
+
+[node name="VisB" type="ColorRect" parent="FloorB"]
+offset_left = -200.0
+offset_top = -16.0
+offset_right = 200.0
+offset_bottom = 16.0
+color = Color(0.3, 0.3, 0.42, 1)
+
+; ===== 墙 BC (x=830) =====
+[node name="WallBC" type="StaticBody2D" parent="."]
+position = Vector2(830, 490)
+collision_layer = 1
+collision_mask = 0
+
+[node name="ColBC" type="CollisionShape2D" parent="WallBC"]
+shape = SubResource("Wall_Shape")
+
+[node name="VisBC" type="ColorRect" parent="WallBC"]
+offset_left = -10.0
+offset_top = -130.0
+offset_right = 10.0
+offset_bottom = 130.0
+color = Color(0.22, 0.2, 0.35, 1)
+
+; ===== 房间 C 地面 (x=840~1040) =====
+[node name="FloorC" type="StaticBody2D" parent="."]
+position = Vector2(940, 620)
+collision_mask = 0
+
+[node name="ColC" type="CollisionShape2D" parent="FloorC"]
+shape = SubResource("Floor_C")
+
+[node name="VisC" type="ColorRect" parent="FloorC"]
+offset_left = -100.0
+offset_top = -16.0
+offset_right = 100.0
+offset_bottom = 16.0
+color = Color(0.28, 0.35, 0.3, 1)
+
+; ===== 裂隙 F1: A(左墙) → B(右墙) 开局即开 =====
+[node name="Fissure1" type="Node2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("2_qf")
+entry_pos = Vector2(360, 590)
+exit_pos = Vector2(480, 590)
+initial_delay = 0.0
+warning_time = 0.5
+open_time = 3.0
+cycle_period = 10.0
+
+; ===== 裂隙 F2: A(上) → C(上) 延时 2s =====
+[node name="Fissure2" type="Node2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("2_qf")
+entry_pos = Vector2(280, 460)
+exit_pos = Vector2(900, 460)
+initial_delay = 2.5
+warning_time = 0.5
+open_time = 2.0
+cycle_period = 10.0
+
+; ===== 裂隙 F3: B(中) → C(中) 延时 4s =====
+[node name="Fissure3" type="Node2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("2_qf")
+entry_pos = Vector2(580, 560)
+exit_pos = Vector2(880, 560)
+initial_delay = 5.0
+warning_time = 0.5
+open_time = 2.0
+cycle_period = 10.0
+
+; ===== 裂隙 F4: B(下) → C(下) 延时 6s 备选 =====
+[node name="Fissure4" type="Node2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("2_qf")
+entry_pos = Vector2(700, 590)
+exit_pos = Vector2(920, 590)
+initial_delay = 7.0
+warning_time = 0.5
+open_time = 2.0
+cycle_period = 10.0
+
+; ===== 终点碎片 (房间 C, x=960) =====
+[node name="TimeFragment" type="Area2D" parent="."]
+position = Vector2(960, 590)
+collision_mask = 2
+script = ExtResource("3_tf")
+codex_id = "quantum_vacuum"
+
+[node name="ColFrag" type="CollisionShape2D" parent="TimeFragment"]
+shape = SubResource("Frag_Shape")

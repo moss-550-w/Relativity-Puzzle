@@ -96,6 +96,10 @@ func _handle_input() -> void:
 	if Input.is_action_just_pressed("reset_puzzle"):
 		GameState.reset_current_puzzle()
 
+	# 观测键（E）：延长量子裂隙
+	if Input.is_action_just_pressed("observe"):
+		_try_extend_fissures()
+
 
 # ============================================================
 # 物理
@@ -192,6 +196,14 @@ func set_frozen(frozen: bool) -> void:
 
 func get_last_safe_position() -> Vector2:
 	return _last_safe_position
+
+
+## E 键：延长附近量子裂隙的存续时间
+func _try_extend_fissures() -> void:
+	for fissure in get_tree().get_nodes_in_group("quantum_fissure"):
+		if fissure.has_method("try_extend"):
+			if fissure.try_extend(global_position):
+				return  # 找到一个就停
 
 
 ## 清空速度累积（光速壁垒弹回时由外部调用）
