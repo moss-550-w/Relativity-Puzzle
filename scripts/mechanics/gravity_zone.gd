@@ -39,6 +39,8 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
+	add_to_group("gravity_zone")
+
 	_build_visual()
 	_build_particles()
 

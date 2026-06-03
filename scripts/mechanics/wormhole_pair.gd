@@ -249,6 +249,7 @@ func _process(delta: float) -> void:
 	_handle_drag()
 	_check_gravity_overlap()
 	_check_paradox()
+	_check_portal_touch()  # 直接距离检测，双保险
 
 
 func _handle_drag() -> void:
@@ -271,16 +272,17 @@ func _handle_drag() -> void:
 
 
 func _check_gravity_overlap() -> void:
-	# 检测 Portal B 是否与任何 GravityZone 重叠
+	# 检测 Portal B 是否在任何引力区范围内（用 group + 距离，替代不可靠的 area-area 检测）
 	var was_active := time_diff_active
 	time_diff_active = false
-	for area in _portal_b.get_overlapping_areas():
-		if area.has_method("_tween_to") or area.get("gravity_scale") != null:
+	var bp := _portal_b.global_position
+	for gz in get_tree().get_nodes_in_group("gravity_zone"):
+		var rr: float = gz.get("ring_radius") if gz else 180.0
+		if bp.distance_to(gz.global_position) < rr:
 			time_diff_active = true
 			break
-	if time_diff_active != was_active:
-		if time_diff_active:
-			CodexManager.unlock("wormhole")
+	if time_diff_active and not was_active:
+		CodexManager.unlock("wormhole")
 
 
 func _check_paradox() -> void:
@@ -332,6 +334,29 @@ func _on_portal_b_entered(body: Node2D) -> void:
 	# 返回现在
 	_teleport(body, _portal_b, _portal_a)
 	ctc_past_active = false
+
+
+## 直接距离检测作为 body_entered 信号的补充保险
+func _check_portal_touch() -> void:
+	if _cooldown_remaining > 0.0:
+		return
+	var player := _get_player()
+	if not player:
+		return
+	var pp := player.global_position
+	var touch_dist := portal_radius + 16.0  # 接触判定距离
+
+	if not ctc_past_active and time_diff_active:
+		# 现在态 + 时间差 → 进 A 回到过去
+		if pp.distance_to(_portal_a.global_position) < touch_dist:
+			_teleport(player, _portal_a, _portal_b)
+			ctc_past_active = true
+			PlayerMetrics.wormhole_loop_count += 1
+	elif ctc_past_active:
+		# 过去态 → 进 B 返回现在
+		if pp.distance_to(_portal_b.global_position) < touch_dist:
+			_teleport(player, _portal_b, _portal_a)
+			ctc_past_active = false
 
 
 func _teleport(player: Node2D, from_portal: Area2D, to_portal: Area2D) -> void:
