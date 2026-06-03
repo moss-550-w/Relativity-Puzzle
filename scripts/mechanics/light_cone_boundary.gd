@@ -2,6 +2,8 @@
 ## 挂载到 Area2D 节点，检测玩家是否超出未来光锥区域
 extends Area2D
 
+const Player = preload("res://scripts/player/player.gd")
+
 
 ## 超出光锥后冻结时间（秒）
 const FREEZE_DURATION: float = 3.0

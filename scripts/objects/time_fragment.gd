@@ -2,6 +2,8 @@ extends Area2D
 ## 时空碎片 — M1-1 终点
 ## 玩家到达后触发图鉴解锁 + 关卡完成
 
+const _Player = preload("res://scripts/player/player.gd")
+
 
 @export var codex_id: String = "time_dilation"
 
@@ -22,7 +24,7 @@ func _ready() -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if _triggered or not body is Player:
+	if _triggered or not (body is _Player):
 		return
 	_triggered = true
 

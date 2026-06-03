@@ -8,7 +8,6 @@ script = ExtResource("1_clock")
 
 [node name="VBox" type="VBoxContainer" parent="."]
 anchors_preset = 2
-anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 0.0
 offset_left = 16.0
@@ -17,7 +16,7 @@ offset_right = -800.0
 offset_bottom = 86.0
 
 [node name="ScaleLabel" type="Label" parent="VBox"]
-text = "场景时间: ×1.00"
+text = "场景时间: x1.00"
 add_theme_font_size_override("font_size", 18)
 
 [node name="SpeedLabel" type="Label" parent="VBox"]
@@ -36,7 +35,7 @@ offset_bottom = -80.0
 horizontal_alignment = 1
 vertical_alignment = 1
 add_theme_font_size_override("font_size", 22)
-default_font_color = Color(1, 0.95, 0.3, 1)
+text = ""
 
 [node name="ToastTimer" type="Timer" parent="."]
 one_shot = true

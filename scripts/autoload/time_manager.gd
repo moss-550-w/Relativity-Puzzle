@@ -6,6 +6,10 @@ extends Node
 ## 关键铁律：玩家操作绝对即时（使用原始delta），场景物体使用 scaled_delta
 
 
+# 预加载类依赖（autoload 先于 class_name 脚本编译，必须 preload）
+const _SpeedTimeCoupling = preload("res://scripts/mechanics/speed_time_coupling.gd")
+const _TimeAffectedBody = preload("res://scripts/mechanics/time_dilation.gd")
+
 # 游戏内光速值（与 SpeedTimeCoupling 保持一致）
 const LIGHT_SPEED: float = 1000.0
 # 场景时间缩放最小/最大值
@@ -35,13 +39,12 @@ signal scene_time_scale_changed(new_scale: float)
 
 ## 由玩家每帧调用，传入当前速度标量，更新场景时间
 func update_from_player_speed(speed: float) -> void:
-	var gamma: float = SpeedTimeCoupling.lorentz_factor(speed)
+	var gamma: float = _SpeedTimeCoupling.lorentz_factor(speed)
 	player_lorentz_factor = gamma
 	scene_time_scale = gamma  # 世界1：场景时间直接 = γ
 
 
 ## 供场景物体调用：返回经时间膨胀后的 delta
-## 如 moving_platform.gd 在位移计算中调用
 func scaled_delta(delta: float) -> float:
 	return delta * scene_time_scale
 
@@ -53,8 +56,9 @@ func player_delta(delta: float) -> float:
 
 ## 供 TimeAffectedBody 调用：计算某物体的综合时间缩放
 ## 当前（世界1）仅叠加 scene_time_scale，后续扩展引力/熵因子
-func calculate_time_scale(body: TimeAffectedBody) -> float:
-	var scale: float = body.local_time_scale * scene_time_scale
+func calculate_time_scale(body: Node2D) -> float:
+	var local_ts: float = body.get("local_time_scale") if body else 1.0
+	var scale: float = local_ts * scene_time_scale
 	return clampf(scale, 0.0, MAX_SCALE)
 
 

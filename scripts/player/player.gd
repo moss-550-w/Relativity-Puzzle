@@ -4,6 +4,8 @@ extends CharacterBody2D
 ## 铁律：输入处理在 _process（实时），物理计算在 _physics_process
 ## sprint 加速 → scene_time_scale ↑ → 场景物体加速
 
+const SpeedTimeCoupling = preload("res://scripts/mechanics/speed_time_coupling.gd")
+
 
 # ============================================================
 # 导出参数
