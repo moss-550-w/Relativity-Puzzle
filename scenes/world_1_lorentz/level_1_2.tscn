@@ -1,0 +1,118 @@
+[gd_scene load_steps=9 format=3 uid="uid://blevel12001"]
+
+[ext_resource type="Script" path="res://scenes/world_1_lorentz/level_1_2.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/objects/moving_platform.gd" id="2_mp"]
+[ext_resource type="Script" path="res://scripts/objects/time_fragment.gd" id="3_tf"]
+[ext_resource type="Script" path="res://scripts/objects/redline_barrier.gd" id="4_rb"]
+
+[sub_resource type="RectangleShape2D" id="Floor_Low"]
+size = Vector2(900, 32)
+
+[sub_resource type="RectangleShape2D" id="Floor_High"]
+size = Vector2(700, 32)
+
+[sub_resource type="RectangleShape2D" id="Floor_End"]
+size = Vector2(500, 32)
+
+[sub_resource type="RectangleShape2D" id="Plat"]
+size = Vector2(96, 16)
+
+; ===== Level Root =====
+[node name="Level1_2" type="Node2D"]
+script = ExtResource("1_ctrl")
+player_spawn = Vector2(120, 540)
+fall_y = 800.0
+level_center_x = 1000.0
+level_width = 2200.0
+complete_text = "[ 关卡完成: 光速壁垒 ]
+速度无法逾越光速，但智慧可以绕行"
+
+; ===== 下层起点地面 (x=0~900, y=620) =====
+[node name="FloorLow" type="StaticBody2D" parent="."]
+position = Vector2(450, 620)
+collision_mask = 0
+
+[node name="ColLow" type="CollisionShape2D" parent="FloorLow"]
+shape = SubResource("Floor_Low")
+
+[node name="VisLow" type="ColorRect" parent="FloorLow"]
+offset_left = -450.0
+offset_top = -16.0
+offset_right = 450.0
+offset_bottom = 16.0
+color = Color(0.35, 0.35, 0.45, 1)
+
+; ===== 红线壁垒 (x=900, 阻断下层主路) =====
+[node name="RedlineBarrier" type="StaticBody2D" parent="."]
+position = Vector2(900, 470)
+script = ExtResource("4_rb")
+bar_height = 340.0
+
+; ===== 升降台 (x=780, 受时间耦合, 垂直往返 600→240) =====
+[node name="Lift" type="AnimatableBody2D" parent="."]
+position = Vector2(780, 600)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("2_mp")
+travel_offset = Vector2(0, -360)
+cycle_duration = 9.0
+pause_time = 1.5
+platform_color = Color(0.3, 0.7, 0.9, 0.95)
+
+[node name="ColLift" type="CollisionShape2D" parent="Lift"]
+shape = SubResource("Plat")
+
+; ===== 上层通道地面 (x=850~1550, y=260) 越过壁垒上方 =====
+[node name="FloorHigh" type="StaticBody2D" parent="."]
+position = Vector2(1200, 260)
+collision_mask = 0
+
+[node name="ColHigh" type="CollisionShape2D" parent="FloorHigh"]
+shape = SubResource("Floor_High")
+
+[node name="VisHigh" type="ColorRect" parent="FloorHigh"]
+offset_left = -350.0
+offset_top = -16.0
+offset_right = 350.0
+offset_bottom = 16.0
+color = Color(0.35, 0.4, 0.5, 1)
+
+; ===== 下降衔接平台 (从上层回到终点下层) =====
+[node name="StepDown" type="StaticBody2D" parent="."]
+position = Vector2(1620, 430)
+collision_mask = 0
+
+[node name="ColStep" type="CollisionShape2D" parent="StepDown"]
+shape = SubResource("Plat")
+
+[node name="VisStep" type="ColorRect" parent="StepDown"]
+offset_left = -48.0
+offset_top = -8.0
+offset_right = 48.0
+offset_bottom = 8.0
+color = Color(0.4, 0.45, 0.5, 1)
+
+; ===== 终点地面 (x=1500~2000, y=620) =====
+[node name="FloorEnd" type="StaticBody2D" parent="."]
+position = Vector2(1750, 620)
+collision_mask = 0
+
+[node name="ColEnd" type="CollisionShape2D" parent="FloorEnd"]
+shape = SubResource("Floor_End")
+
+[node name="VisEnd" type="ColorRect" parent="FloorEnd"]
+offset_left = -250.0
+offset_top = -16.0
+offset_right = 250.0
+offset_bottom = 16.0
+color = Color(0.35, 0.45, 0.35, 1)
+
+; ===== 终点碎片 =====
+[node name="TimeFragment" type="Area2D" parent="."]
+position = Vector2(1850, 590)
+collision_mask = 2
+script = ExtResource("3_tf")
+codex_id = "light_speed_barrier"
+
+[node name="ColFrag" type="CollisionShape2D" parent="TimeFragment"]
+shape = SubResource("Plat")
