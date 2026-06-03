@@ -27,6 +27,11 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "高速旅行的双胞胎返回后比留在地球的更年轻——时间对每个人并不公平。",
 		"category": "special_relativity"
 	},
+	"gravitational_time_dilation": {
+		"name": "引力时间膨胀",
+		"desc": "强引力场中时间流速比远处慢。越靠近大质量天体，时钟走得越慢。",
+		"category": "general_relativity"
+	},
 }
 
 # ---- 状态 ----

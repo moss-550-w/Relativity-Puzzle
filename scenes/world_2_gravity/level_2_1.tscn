@@ -1,0 +1,141 @@
+[gd_scene format=3 uid="uid://blevel21001"]
+
+[ext_resource type="Script" path="res://scenes/world_2_gravity/level_2_1.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/objects/moving_platform.gd" id="2_mp"]
+[ext_resource type="Script" path="res://scripts/objects/time_fragment.gd" id="3_tf"]
+[ext_resource type="Script" path="res://scripts/mechanics/gravity_zone.gd" id="4_gz"]
+
+[sub_resource type="RectangleShape2D" id="Floor_Spawn"]
+size = Vector2(500, 32)
+
+[sub_resource type="RectangleShape2D" id="Floor_End"]
+size = Vector2(500, 32)
+
+[sub_resource type="RectangleShape2D" id="Floor_Step"]
+size = Vector2(120, 32)
+
+[sub_resource type="RectangleShape2D" id="Plat"]
+size = Vector2(96, 16)
+
+[sub_resource type="RectangleShape2D" id="Frag"]
+size = Vector2(80, 60)
+
+; ===== Level Root =====
+[node name="Level2_1" type="Node2D"]
+script = ExtResource("1_ctrl")
+player_spawn = Vector2(100, 520)
+fall_y = 800.0
+level_center_x = 1100.0
+level_width = 2400.0
+complete_text = "[ 关卡完成: 引力时间膨胀 ]
+引力不是力，是时空的弯曲——时间在强引力旁放慢脚步"
+next_level_path = ""
+
+; ===== 出生平台 (x=0~500, y=620) =====
+[node name="FloorSpawn" type="StaticBody2D" parent="."]
+position = Vector2(250, 620)
+collision_mask = 0
+
+[node name="ColSpawn" type="CollisionShape2D" parent="FloorSpawn"]
+shape = SubResource("Floor_Spawn")
+
+[node name="VisSpawn" type="ColorRect" parent="FloorSpawn"]
+offset_left = -250.0
+offset_top = -16.0
+offset_right = 250.0
+offset_bottom = 16.0
+color = Color(0.35, 0.35, 0.45, 1)
+
+; ===== 引力区 (x=800, y=410) 覆盖平台区域 =====
+[node name="GravityZone" type="Area2D" parent="."]
+position = Vector2(800, 410)
+script = ExtResource("4_gz")
+gravity_scale = 0.25
+transition_time = 0.8
+ring_radius = 240.0
+
+; ===== 快速升降平台 ×3 =====
+; 平台1 (x=650)
+[node name="Platform1" type="AnimatableBody2D" parent="."]
+position = Vector2(650, 590)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("2_mp")
+travel_offset = Vector2(0, -260)
+cycle_duration = 0.8
+pause_time = 0.1
+start_forward = true
+platform_color = Color(0.7, 0.45, 0.9, 0.95)
+
+[node name="ColP1" type="CollisionShape2D" parent="Platform1"]
+shape = SubResource("Plat")
+
+; 平台2 (x=800)
+[node name="Platform2" type="AnimatableBody2D" parent="."]
+position = Vector2(800, 590)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("2_mp")
+travel_offset = Vector2(0, -260)
+cycle_duration = 0.8
+pause_time = 0.1
+start_forward = false
+platform_color = Color(0.65, 0.4, 0.85, 0.95)
+
+[node name="ColP2" type="CollisionShape2D" parent="Platform2"]
+shape = SubResource("Plat")
+
+; 平台3 (x=950)
+[node name="Platform3" type="AnimatableBody2D" parent="."]
+position = Vector2(950, 590)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("2_mp")
+travel_offset = Vector2(0, -260)
+cycle_duration = 0.8
+pause_time = 0.1
+start_forward = true
+platform_color = Color(0.7, 0.45, 0.9, 0.95)
+
+[node name="ColP3" type="CollisionShape2D" parent="Platform3"]
+shape = SubResource("Plat")
+
+; ===== 中间台阶 (x=600, y=620) =====
+[node name="StepMid" type="StaticBody2D" parent="."]
+position = Vector2(600, 620)
+collision_mask = 0
+
+[node name="ColStep" type="CollisionShape2D" parent="StepMid"]
+shape = SubResource("Floor_Step")
+
+[node name="VisStep" type="ColorRect" parent="StepMid"]
+offset_left = -60.0
+offset_top = -16.0
+offset_right = 60.0
+offset_bottom = 16.0
+color = Color(0.32, 0.3, 0.42, 1)
+
+; ===== 终点平台 (x=1050~1550, y=620) =====
+[node name="FloorEnd" type="StaticBody2D" parent="."]
+position = Vector2(1300, 620)
+collision_mask = 0
+
+[node name="ColEnd" type="CollisionShape2D" parent="FloorEnd"]
+shape = SubResource("Floor_End")
+
+[node name="VisEnd" type="ColorRect" parent="FloorEnd"]
+offset_left = -250.0
+offset_top = -16.0
+offset_right = 250.0
+offset_bottom = 16.0
+color = Color(0.35, 0.45, 0.35, 1)
+
+; ===== 终点碎片 (x=1450, y=590) =====
+[node name="TimeFragment" type="Area2D" parent="."]
+position = Vector2(1450, 590)
+collision_mask = 2
+script = ExtResource("3_tf")
+codex_id = "gravitational_time_dilation"
+
+[node name="ColFrag" type="CollisionShape2D" parent="TimeFragment"]
+shape = SubResource("Frag")
