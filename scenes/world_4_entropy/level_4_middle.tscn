@@ -1,0 +1,167 @@
+[gd_scene format=3 uid="uid://blevel4m001"]
+
+[ext_resource type="Script" path="res://scenes/world_4_entropy/level_4_middle.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/mechanics/time_zone.gd" id="2_tz"]
+[ext_resource type="Script" path="res://scripts/objects/moving_platform.gd" id="3_mp"]
+[ext_resource type="Script" path="res://scripts/objects/time_fragment.gd" id="4_tf"]
+
+[sub_resource type="RectangleShape2D" id="Floor_Main"]
+size = Vector2(1700, 32)
+
+[sub_resource type="RectangleShape2D" id="Plat"]
+size = Vector2(96, 16)
+
+[sub_resource type="RectangleShape2D" id="Frag"]
+size = Vector2(80, 60)
+
+; ===== Level Root =====
+[node name="Level4Middle" type="Node2D"]
+script = ExtResource("1_ctrl")
+player_spawn = Vector2(100, 530)
+fall_y = 900.0
+level_center_x = 800.0
+level_width = 1800.0
+complete_text = "[ 中层通过: 时间的碎片 ]
+不同区域的时间以不同速率流逝——
+'现在'只是一个局部的错觉。
+继续向下。本源在深处等你。"
+next_level_path = ""
+
+; ===== 主地面 (x=0~1700) =====
+[node name="FloorMain" type="StaticBody2D" parent="."]
+position = Vector2(850, 620)
+collision_mask = 0
+
+[node name="ColMain" type="CollisionShape2D" parent="FloorMain"]
+shape = SubResource("Floor_Main")
+
+[node name="VisMain" type="ColorRect" parent="FloorMain"]
+offset_left = -850.0
+offset_top = -16.0
+offset_right = 850.0
+offset_bottom = 16.0
+color = Color(0.28, 0.28, 0.4, 1)
+
+; ===== 绿区 (1× 标准) x=200, 出生区 =====
+[node name="ZoneGreen" type="Area2D" parent="."]
+position = Vector2(200, 440)
+script = ExtResource("2_tz")
+time_scale = 1.0
+zone_color = Color(0.2, 0.8, 0.3, 0.18)
+zone_radius = 160.0
+label_text = "绿·1×"
+
+; ===== 红区 (0.05× 极慢) x=480, 碎片A =====
+[node name="ZoneRed" type="Area2D" parent="."]
+position = Vector2(480, 440)
+script = ExtResource("2_tz")
+time_scale = 0.05
+zone_color = Color(0.9, 0.35, 0.15, 0.22)
+zone_radius = 150.0
+label_text = "红·0.05×"
+
+; ===== 红区升降平台 =====
+[node name="RedPlatform" type="AnimatableBody2D" parent="."]
+position = Vector2(480, 590)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("3_mp")
+travel_offset = Vector2(0, -200)
+cycle_duration = 0.25
+pause_time = 0.1
+platform_color = Color(0.9, 0.35, 0.15, 0.9)
+
+[node name="ColRP" type="CollisionShape2D" parent="RedPlatform"]
+shape = SubResource("Plat")
+
+; ===== 碎片 A (红区内, 需等平台) =====
+[node name="FragmentA" type="Area2D" parent="."]
+position = Vector2(480, 400)
+collision_mask = 2
+script = ExtResource("4_tf")
+codex_id = "block_universe"
+
+[node name="ColFA" type="CollisionShape2D" parent="FragmentA"]
+shape = SubResource("Frag")
+
+; ===== 蓝区 (5× 极快) x=780, 碎片B =====
+[node name="ZoneBlue" type="Area2D" parent="."]
+position = Vector2(780, 440)
+script = ExtResource("2_tz")
+time_scale = 5.0
+zone_color = Color(0.15, 0.4, 1.0, 0.2)
+zone_radius = 150.0
+label_text = "蓝·5×"
+
+; ===== 蓝区平台 (快速升降) =====
+[node name="BluePlatform" type="AnimatableBody2D" parent="."]
+position = Vector2(780, 590)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("3_mp")
+travel_offset = Vector2(0, -200)
+cycle_duration = 20.0
+pause_time = 0.5
+platform_color = Color(0.15, 0.4, 1.0, 0.9)
+
+[node name="ColBP" type="CollisionShape2D" parent="BluePlatform"]
+shape = SubResource("Plat")
+
+; ===== 碎片 B (蓝区内, 需精准时机) =====
+[node name="FragmentB" type="Area2D" parent="."]
+position = Vector2(780, 390)
+collision_mask = 2
+script = ExtResource("4_tf")
+
+[node name="ColFB" type="CollisionShape2D" parent="FragmentB"]
+shape = SubResource("Frag")
+
+; ===== 紫区 (0.3× 慢速) x=1050 =====
+[node name="ZonePurple" type="Area2D" parent="."]
+position = Vector2(1050, 440)
+script = ExtResource("2_tz")
+time_scale = 0.3
+zone_color = Color(0.55, 0.2, 0.8, 0.2)
+zone_radius = 140.0
+label_text = "紫·0.3×"
+
+; ===== 金区 (3× 快速) x=1250 =====
+[node name="ZoneGold" type="Area2D" parent="."]
+position = Vector2(1250, 440)
+script = ExtResource("2_tz")
+time_scale = 3.0
+zone_color = Color(1.0, 0.75, 0.2, 0.2)
+zone_radius = 140.0
+label_text = "金·3×"
+
+; ===== 灰区 (0× 冻结) x=1450, 碎片C =====
+[node name="ZoneGray" type="Area2D" parent="."]
+position = Vector2(1500, 440)
+script = ExtResource("2_tz")
+time_scale = 0.0
+zone_color = Color(0.5, 0.5, 0.55, 0.25)
+zone_radius = 130.0
+label_text = "灰·0×"
+
+; ===== 灰区平台 (完全静止) =====
+[node name="GrayPlatform" type="AnimatableBody2D" parent="."]
+position = Vector2(1500, 550)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("3_mp")
+travel_offset = Vector2(0, 0)
+cycle_duration = 10.0
+pause_time = 10.0
+platform_color = Color(0.5, 0.5, 0.55, 0.8)
+
+[node name="ColGP" type="CollisionShape2D" parent="GrayPlatform"]
+shape = SubResource("Plat")
+
+; ===== 碎片 C (灰区内, 利用惯性) =====
+[node name="FragmentC" type="Area2D" parent="."]
+position = Vector2(1500, 480)
+collision_mask = 2
+script = ExtResource("4_tf")
+
+[node name="ColFC" type="CollisionShape2D" parent="FragmentC"]
+shape = SubResource("Frag")

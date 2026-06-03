@@ -82,6 +82,11 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "孤立系统熵永不减少——熵增给定了时间的方向。你在局部可以暂缓崩解，但宇宙总熵仍在攀升。",
 		"category": "entropy_cosmology"
 	},
+	"block_universe": {
+		"name": "块状宇宙",
+		"desc": "过去、现在、未来同样真实存在——时间是四维时空的一个维度，而非流动的河流。不同时区只是不同的切片。",
+		"category": "entropy_cosmology"
+	},
 }
 
 # ---- 状态 ----
