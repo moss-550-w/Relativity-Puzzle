@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://blevel22001"]
+
+[ext_resource type="Script" path="res://scenes/world_2_gravity/level_2_2.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/mechanics/wormhole_pair.gd" id="2_wp"]
+[ext_resource type="Script" path="res://scripts/objects/ctc_door.gd" id="3_door"]
+[ext_resource type="Script" path="res://scripts/mechanics/gravity_zone.gd" id="4_gz"]
+[ext_resource type="Script" path="res://scripts/objects/time_fragment.gd" id="5_tf"]
+
+[sub_resource type="RectangleShape2D" id="Floor_Main"]
+size = Vector2(1500, 32)
+
+[sub_resource type="RectangleShape2D" id="Frag"]
+size = Vector2(80, 60)
+
+; ===== Level Root =====
+[node name="Level2_2" type="Node2D"]
+script = ExtResource("1_ctrl")
+player_spawn = Vector2(100, 530)
+fall_y = 800.0
+level_center_x = 750.0
+level_width = 1600.0
+complete_text = "[ 关卡完成: 闭合类时曲线 ]
+你回到了过去，改变了现在——但你真的'改变'了什么，
+还是这闭环本就是时空的宿命？"
+next_level_path = ""
+
+; ===== 主地面 (x=0~1500, y=620) =====
+[node name="FloorMain" type="StaticBody2D" parent="."]
+position = Vector2(750, 620)
+collision_mask = 0
+
+[node name="ColMain" type="CollisionShape2D" parent="FloorMain"]
+shape = SubResource("Floor_Main")
+
+[node name="VisMain" type="ColorRect" parent="FloorMain"]
+offset_left = -750.0
+offset_top = -16.0
+offset_right = 750.0
+offset_bottom = 16.0
+color = Color(0.3, 0.3, 0.4, 1)
+
+; ===== CTC 门 (x=880, y=510, 高 220) =====
+[node name="CTCDoor" type="StaticBody2D" parent="."]
+position = Vector2(880, 510)
+script = ExtResource("3_door")
+wormhole_pair_path = NodePath("../WormholePair")
+door_width = 36.0
+door_height = 220.0
+
+; ===== 虫洞对 (管理器) =====
+[node name="WormholePair" type="Node2D" parent="."]
+script = ExtResource("2_wp")
+portal_a_pos = Vector2(350, 590)
+portal_b_pos = Vector2(580, 590)
+portal_radius = 28.0
+switch_pos = Vector2(1060, 590)
+cooldown = 1.5
+
+; ===== 引力区 (x=700, y=460) =====
+[node name="GravityZone" type="Area2D" parent="."]
+position = Vector2(700, 460)
+script = ExtResource("4_gz")
+gravity_scale = 0.25
+transition_time = 0.8
+ring_radius = 180.0
+
+; ===== 终点碎片 (x=1300, y=590) =====
+[node name="TimeFragment" type="Area2D" parent="."]
+position = Vector2(1300, 590)
+collision_mask = 2
+script = ExtResource("5_tf")
+codex_id = "gravitational_time_dilation"
+
+[node name="ColFrag" type="CollisionShape2D" parent="TimeFragment"]
+shape = SubResource("Frag")

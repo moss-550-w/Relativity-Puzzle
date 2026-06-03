@@ -32,6 +32,21 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "强引力场中时间流速比远处慢。越靠近大质量天体，时钟走得越慢。",
 		"category": "general_relativity"
 	},
+	"wormhole": {
+		"name": "虫洞与爱因斯坦-罗森桥",
+		"desc": "时空两点之间的理论捷径。虫洞是广义相对论的数学解，但可穿越虫洞需要负能量——尚未被实验证实。",
+		"category": "general_relativity"
+	},
+	"ctc": {
+		"name": "闭合类时曲线（CTC）",
+		"desc": "时空中回到自身过去的闭合路径。CTC 在理论中存在，但其物理可实现性未知——也许宇宙禁止时间旅行。",
+		"category": "general_relativity"
+	},
+	"grandfather_paradox": {
+		"name": "祖父悖论",
+		"desc": "若回到过去阻止自己出生，你如何存在？因果闭环的自洽性危机——宇宙或许不容许这样的矛盾。",
+		"category": "general_relativity"
+	},
 }
 
 # ---- 状态 ----
