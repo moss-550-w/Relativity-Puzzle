@@ -78,21 +78,13 @@ func _draw_dashed_edge(parent: Node2D, from: Vector2, to: Vector2) -> void:
 	var pos: float = 0.0
 	while pos < length:
 		var seg_end: float = minf(pos + dash_length, length)
-		var start := from + dir * pos
-		var end_pt := from + dir * seg_end
-		var mid := (start + end_pt) / 2.0
-
-		var dash := ColorRect.new()
-		dash.color = boundary_color
-		dash.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var seg_len := start.distance_to(end_pt)
-		if absf(dir.x) > absf(dir.y):
-			dash.size = Vector2(seg_len, line_width)
-		else:
-			dash.size = Vector2(line_width, seg_len)
-		dash.position = mid - dash.size / 2.0
-		parent.add_child(dash)
-
+		# 每个虚线段 = 一个 Line2D 节点（Node2D 子类，渲染正确）
+		var line := Line2D.new()
+		line.width = line_width
+		line.default_color = boundary_color
+		line.add_point(from + dir * pos)
+		line.add_point(from + dir * seg_end)
+		parent.add_child(line)
 		pos += segment
 
 

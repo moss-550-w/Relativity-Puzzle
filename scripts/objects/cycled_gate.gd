@@ -1,6 +1,7 @@
 extends Node2D
 ## 周期性升降闸门 — 受 scene_time_scale 影响
 ## 冲刺加速 → 闸门快速升降 → 玩家可把握时机穿过
+## 使用 StaticBody2D 物理阻挡（非 Area2D），碰撞体在升起时启用
 
 
 @export_category("Motion")
@@ -12,6 +13,8 @@ extends Node2D
 @export var initial_phase: float = 0.0
 ## 闸门宽度
 @export var gate_width: float = 80.0
+## 闸门升起时顶部 y 偏移（< 此值视为阻挡）
+@export var block_threshold: float = -30.0
 
 @export_category("Visual")
 @export var gate_color: Color = Color(0.9, 0.3, 0.15, 0.85)
@@ -20,14 +23,15 @@ extends Node2D
 var _start_y: float
 var _elapsed: float
 var _body: ColorRect = null
-var _area: Area2D = null
+var _blocker: StaticBody2D = null
+var _blocker_shape: CollisionShape2D = null
 
 
 func _ready() -> void:
 	_start_y = global_position.y
 	_elapsed = initial_phase * cycle_duration
 
-	# 视觉
+	# 视觉门体
 	_body = ColorRect.new()
 	_body.name = "Visual"
 	_body.size = Vector2(gate_width, travel_range * 0.35)
@@ -35,19 +39,19 @@ func _ready() -> void:
 	_body.position = Vector2(-gate_width / 2.0, -travel_range * 0.35 / 2.0)
 	add_child(_body)
 
-	# 碰撞体
-	var collision := CollisionShape2D.new()
+	# 物理阻挡体（StaticBody2D，碰撞层 = world，与玩家碰撞）
+	_blocker = StaticBody2D.new()
+	_blocker.name = "GateBlocker"
+	_blocker.collision_layer = 1   # world 层
+	_blocker.collision_mask = 0    # 不检测其他物体
+
+	_blocker_shape = CollisionShape2D.new()
 	var rect := RectangleShape2D.new()
 	rect.size = Vector2(gate_width, travel_range * 0.35)
-	collision.shape = rect
-	collision.position = Vector2(0, -travel_range * 0.35 / 2.0)
-
-	_area = Area2D.new()
-	_area.name = "GateBlocker"
-	_area.collision_layer = 4
-	_area.collision_mask = 0
-	_area.add_child(collision)
-	add_child(_area)
+	_blocker_shape.shape = rect
+	_blocker_shape.position = Vector2(0, -travel_range * 0.35 / 2.0)
+	_blocker.add_child(_blocker_shape)
+	add_child(_blocker)
 
 	# 装饰性警示条纹
 	var stripe := ColorRect.new()
@@ -65,14 +69,17 @@ func _physics_process(delta: float) -> void:
 	var phase := _elapsed / cycle_duration
 	# 用正弦波模拟升降：phase 0=升起(顶), 0.5=降下(底)
 	var offset := sin(phase * TAU) * travel_range * 0.5
-	_body.position.y = -travel_range * 0.35 / 2.0 + offset
-	_area.position.y = offset
 
-	# 根据闸门位置决定是否阻挡（顶部时阻挡，底部时可通过）
-	# area 在 y 偏移 < -30 时挡住玩家（闸门升起）
-	var blocking := offset < -30.0
-	_area.set_deferred("monitoring", blocking)
-	_area.set_deferred("monitorable", blocking)
+	# 更新视觉门体
+	_body.position.y = -travel_range * 0.35 / 2.0 + offset
+
+	# 更新物理阻挡体：跟随门体移动
+	_blocker.position.y = offset
+	_blocker_shape.position.y = -travel_range * 0.35 / 2.0
+
+	# 门体升起时启用碰撞阻挡，降下时禁用
+	var blocking := offset < block_threshold
+	_blocker_shape.set_deferred("disabled", not blocking)
 
 
 func reset_state() -> void:
