@@ -77,6 +77,11 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "霍金(1992)提出：物理定律禁止宏观时间旅行。量子真空涨落在CTC形成时会发散——大自然讨厌时间机器。",
 		"category": "quantum_gravity"
 	},
+	"entropy_arrow": {
+		"name": "熵增定律与时间箭头",
+		"desc": "孤立系统熵永不减少——熵增给定了时间的方向。你在局部可以暂缓崩解，但宇宙总熵仍在攀升。",
+		"category": "entropy_cosmology"
+	},
 }
 
 # ---- 状态 ----

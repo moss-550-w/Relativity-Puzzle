@@ -29,8 +29,13 @@ enum Ending {
 
 
 ## 基于行为统计判定结局
-## Phase 1 仅桩，返回 NONE
 func determine_ending() -> Ending:
+	if bottom_layer_idle_time > 60.0 and entropy_resist_count < 3:
+		return Ending.SOURCE_INSIGHT
+	elif wormhole_loop_count >= 3:
+		return Ending.CLOSED_LOOP_PRISON
+	elif time_fragments_repaired >= 3:
+		return Ending.TOWARD_FUTURE
 	return Ending.NONE
 
 

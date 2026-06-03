@@ -1,0 +1,103 @@
+[gd_scene load_steps=9 format=3 uid="uid://blevel4u001"]
+
+[ext_resource type="Script" path="res://scenes/world_4_entropy/level_4_upper.gd" id="1_ctrl"]
+[ext_resource type="Script" path="res://scripts/objects/entropy_platform.gd" id="2_ep"]
+[ext_resource type="Script" path="res://scripts/objects/order_energy.gd" id="3_oe"]
+[ext_resource type="Script" path="res://scripts/objects/time_fragment.gd" id="4_tf"]
+
+[sub_resource type="RectangleShape2D" id="FloorBase"]
+size = Vector2(400, 32)
+
+[sub_resource type="RectangleShape2D" id="FloorMid"]
+size = Vector2(250, 32)
+
+[sub_resource type="RectangleShape2D" id="FloorEnd"]
+size = Vector2(300, 32)
+
+[sub_resource type="RectangleShape2D" id="Frag"]
+size = Vector2(80, 60)
+
+; ===== Level Root =====
+[node name="Level4Upper" type="Node2D"]
+script = ExtResource("1_ctrl")
+player_spawn = Vector2(100, 530)
+fall_y = 900.0
+level_center_x = 600.0
+level_width = 1400.0
+complete_text = "[ 上层通过: 熵之斜坡 ]
+你在崩解中前行——但熵增永不停息。
+向下走吧。时间在深处等你。"
+next_level_path = ""
+
+; ===== 出生平台 (稳定, 不崩解) (x=0~400) =====
+[node name="FloorSpawn" type="StaticBody2D" parent="."]
+position = Vector2(200, 620)
+collision_mask = 0
+
+[node name="ColSpawn" type="CollisionShape2D" parent="FloorSpawn"]
+shape = SubResource("FloorBase")
+
+[node name="VisSpawn" type="ColorRect" parent="FloorSpawn"]
+offset_left = -200.0
+offset_top = -16.0
+offset_right = 200.0
+offset_bottom = 16.0
+color = Color(0.35, 0.38, 0.45, 1)
+
+; ===== 崩解中平台 1 (x=550, 中心) =====
+[node name="Platform1" type="StaticBody2D" parent="."]
+position = Vector2(550, 620)
+script = ExtResource("2_ep")
+platform_width = 200.0
+
+; ===== 崩解中平台 2 (x=850, 较高) =====
+[node name="Platform2" type="StaticBody2D" parent="."]
+position = Vector2(850, 500)
+script = ExtResource("2_ep")
+platform_width = 180.0
+
+; ===== 崩解中平台 3 (x=1100, 中心) =====
+[node name="Platform3" type="StaticBody2D" parent="."]
+position = Vector2(1100, 620)
+script = ExtResource("2_ep")
+platform_width = 250.0
+
+; ===== 秩序能量 ① (x=480, y=580) =====
+[node name="OrderEnergy1" type="Area2D" parent="."]
+position = Vector2(480, 580)
+script = ExtResource("3_oe")
+
+; ===== 秩序能量 ② (x=780, y=460) =====
+[node name="OrderEnergy2" type="Area2D" parent="."]
+position = Vector2(780, 460)
+script = ExtResource("3_oe")
+
+; ===== 秩序能量 ③ (x=1050, y=580) =====
+[node name="OrderEnergy3" type="Area2D" parent="."]
+position = Vector2(1050, 580)
+script = ExtResource("3_oe")
+
+; ===== 终点平台 (稳定) (x=1200~1500) =====
+[node name="FloorEnd" type="StaticBody2D" parent="."]
+position = Vector2(1350, 620)
+collision_mask = 0
+
+[node name="ColEnd" type="CollisionShape2D" parent="FloorEnd"]
+shape = SubResource("FloorEnd")
+
+[node name="VisEnd" type="ColorRect" parent="FloorEnd"]
+offset_left = -150.0
+offset_top = -16.0
+offset_right = 150.0
+offset_bottom = 16.0
+color = Color(0.3, 0.4, 0.3, 1)
+
+; ===== 终点碎片 + 下行通道标记 (x=1400) =====
+[node name="TimeFragment" type="Area2D" parent="."]
+position = Vector2(1400, 590)
+collision_mask = 2
+script = ExtResource("4_tf")
+codex_id = "entropy_arrow"
+
+[node name="ColFrag" type="CollisionShape2D" parent="TimeFragment"]
+shape = SubResource("Frag")

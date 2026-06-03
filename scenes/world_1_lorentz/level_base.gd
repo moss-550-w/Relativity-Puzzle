@@ -172,5 +172,5 @@ func _reset_level() -> void:
 		_player.velocity = Vector2.ZERO
 		_player.global_position = player_spawn
 	for node in _resettables:
-		if node.has_method("reset_state"):
+		if is_instance_valid(node) and node.has_method("reset_state"):
 			node.reset_state()
