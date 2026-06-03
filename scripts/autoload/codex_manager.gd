@@ -22,6 +22,11 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "你的未来只能抵达光锥之内。锥外的时空对你毫无意义。",
 		"category": "special_relativity"
 	},
+	"twin_paradox": {
+		"name": "双生子佯谬",
+		"desc": "高速旅行的双胞胎返回后比留在地球的更年轻——时间对每个人并不公平。",
+		"category": "special_relativity"
+	},
 }
 
 # ---- 状态 ----

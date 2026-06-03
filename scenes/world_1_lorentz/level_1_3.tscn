@@ -1,12 +1,15 @@
 [gd_scene format=3 uid="uid://blevel13001"]
 
-[ext_resource type="Script" path="res://scenes/world_1_lorentz/level_1_3.gd" id="1_ctrl"]
-[ext_resource type="Script" path="res://scripts/mechanics/light_cone_boundary.gd" id="2_lcb"]
-[ext_resource type="Script" path="res://scripts/objects/cycled_gate.gd" id="3_gate"]
-[ext_resource type="Script" path="res://scripts/objects/time_fragment.gd" id="4_tf"]
+[ext_resource type="Script" uid="uid://c1nn4nfdkgr54" path="res://scenes/world_1_lorentz/level_1_3.gd" id="1_ctrl"]
+[ext_resource type="Script" uid="uid://bvp01bwfjlhip" path="res://scripts/mechanics/light_cone_boundary.gd" id="2_lcb"]
+[ext_resource type="Script" uid="uid://78n3uhderot3" path="res://scripts/objects/cycled_gate.gd" id="3_gate"]
+[ext_resource type="Script" uid="uid://bwpn761fruv7p" path="res://scripts/objects/time_fragment.gd" id="4_tf"]
 
 [sub_resource type="RectangleShape2D" id="Floor_Spawn"]
 size = Vector2(500, 32)
+
+[sub_resource type="RectangleShape2D" id="Cone_Zone"]
+size = Vector2(1900, 360)
 
 [sub_resource type="RectangleShape2D" id="Floor_Mid"]
 size = Vector2(800, 32)
@@ -14,101 +17,82 @@ size = Vector2(800, 32)
 [sub_resource type="RectangleShape2D" id="Floor_End"]
 size = Vector2(800, 32)
 
-[sub_resource type="RectangleShape2D" id="Cone_Zone"]
-size = Vector2(1900, 360)
-
 [sub_resource type="RectangleShape2D" id="Frag_Shape"]
 size = Vector2(80, 60)
 
-; ===== Level Root =====
-[node name="Level1_3" type="Node2D"]
+[node name="Level1_3" type="Node2D" unique_id=1664134483]
 script = ExtResource("1_ctrl")
-player_spawn = Vector2(100, 520)
-fall_y = 800.0
 level_center_x = 1200.0
 level_width = 2600.0
 complete_text = "[ 关卡完成: 光锥与因果结构 ]
 光锥之内即命运，锥外时空毫无意义"
-next_level_path = ""
 
-; ===== 出生平台 (x=0~500, y=620) =====
-[node name="FloorSpawn" type="StaticBody2D" parent="."]
+[node name="FloorSpawn" type="StaticBody2D" parent="." unique_id=288356871]
 position = Vector2(250, 620)
 collision_mask = 0
 
-[node name="ColSpawn" type="CollisionShape2D" parent="FloorSpawn"]
+[node name="ColSpawn" type="CollisionShape2D" parent="FloorSpawn" unique_id=1225671523]
 shape = SubResource("Floor_Spawn")
 
-[node name="VisSpawn" type="ColorRect" parent="FloorSpawn"]
+[node name="VisSpawn" type="ColorRect" parent="FloorSpawn" unique_id=400480617]
 offset_left = -250.0
 offset_top = -16.0
 offset_right = 250.0
 offset_bottom = 16.0
 color = Color(0.35, 0.35, 0.45, 1)
 
-; ===== 光锥安全区 (Area2D, 虚线边界 = 未来光锥) =====
-; CollisionShape2D 中心 (1100, 500), 尺寸 (1900, 360)
-; 覆盖世界坐标: x=150~2050, y=320~680
-[node name="LightConeZone" type="Area2D" parent="."]
+[node name="LightConeZone" type="Area2D" parent="." unique_id=374739783]
 collision_layer = 0
 collision_mask = 2
 script = ExtResource("2_lcb")
-show_boundary = true
-boundary_color = Color(0.3, 0.9, 1.0, 0.55)
-dash_length = 24.0
-gap_length = 16.0
 
-[node name="ColCone" type="CollisionShape2D" parent="LightConeZone"]
+[node name="ColCone" type="CollisionShape2D" parent="LightConeZone" unique_id=2061960832]
 position = Vector2(1100, 500)
 shape = SubResource("Cone_Zone")
 
-; ===== 中途平台 (x=500~1300, y=620) =====
-[node name="FloorMid" type="StaticBody2D" parent="."]
+[node name="FloorMid" type="StaticBody2D" parent="." unique_id=383492394]
 position = Vector2(900, 620)
 collision_mask = 0
 
-[node name="ColMid" type="CollisionShape2D" parent="FloorMid"]
+[node name="ColMid" type="CollisionShape2D" parent="FloorMid" unique_id=801969811]
 shape = SubResource("Floor_Mid")
 
-[node name="VisMid" type="ColorRect" parent="FloorMid"]
+[node name="VisMid" type="ColorRect" parent="FloorMid" unique_id=1806611381]
 offset_left = -400.0
 offset_top = -16.0
 offset_right = 400.0
 offset_bottom = 16.0
 color = Color(0.35, 0.35, 0.45, 1)
 
-; ===== 周期闸门 (x=920, y=620, 锥区内) =====
-; 玩家需提速让闸门快开，但冲刺时不可冲出虚线边界
-[node name="Gate" type="Node2D" parent="."]
+[node name="Gate" type="Node2D" parent="." unique_id=853329615]
 position = Vector2(920, 621)
 script = ExtResource("3_gate")
 travel_range = 240.0
 cycle_duration = 7.0
-initial_phase = 0.0
 gate_width = 70.0
-gate_color = Color(0.9, 0.3, 0.15, 0.85)
 
-; ===== 终点平台 (x=1300~2100, y=620) =====
-[node name="FloorEnd" type="StaticBody2D" parent="."]
+[node name="VisibleOnScreenEnabler2D" type="VisibleOnScreenEnabler2D" parent="Gate" unique_id=1893045264]
+rect = Rect2(-30, -46, 57, 77)
+
+[node name="FloorEnd" type="StaticBody2D" parent="." unique_id=1262976580]
 position = Vector2(1700, 620)
 collision_mask = 0
 
-[node name="ColEnd" type="CollisionShape2D" parent="FloorEnd"]
+[node name="ColEnd" type="CollisionShape2D" parent="FloorEnd" unique_id=2019401046]
 shape = SubResource("Floor_End")
 
-[node name="VisEnd" type="ColorRect" parent="FloorEnd"]
+[node name="VisEnd" type="ColorRect" parent="FloorEnd" unique_id=1398535457]
 offset_left = -400.0
 offset_top = -16.0
 offset_right = 400.0
 offset_bottom = 16.0
 color = Color(0.35, 0.45, 0.35, 1)
 
-; ===== 终点时空碎片 (x=1950, y=590) =====
-[node name="TimeFragment" type="Area2D" parent="."]
+[node name="TimeFragment" type="Area2D" parent="." unique_id=834713221]
 position = Vector2(1950, 590)
 collision_mask = 2
 script = ExtResource("4_tf")
 codex_id = "light_cone"
 
-[node name="ColFrag" type="CollisionShape2D" parent="TimeFragment"]
+[node name="ColFrag" type="CollisionShape2D" parent="TimeFragment" unique_id=1258963877]
 shape = SubResource("Frag_Shape")
