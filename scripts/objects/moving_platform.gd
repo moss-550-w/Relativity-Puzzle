@@ -77,6 +77,7 @@ func _physics_process(delta: float) -> void:
 
 ## 重置到初始状态（谜题重置 / 坠崖时调用）
 func reset_state() -> void:
+	global_position = _start_position
 	_elapsed = 0.0
 	_going_forward = start_forward
 	_pausing = true

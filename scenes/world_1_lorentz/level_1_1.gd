@@ -1,39 +1,40 @@
 extends Node2D
-## M1-1 关卡控制器
-## 教学谜题：玩家 sprint 提速 → 场景时间加速 → 移动平台快进到合适位置
-## 加载 Player、HUD、TimeWarpOverlay、坠崖 KillZone
+## M1-1 关卡控制器 — "三重时间考验"
+##
+## Zone 0: 起点 — 玩家自由行走，感受正常时间流速
+## Zone 1: 闸门 — 冲刺 → 闸门周期加速 → 乘隙穿过（教学核心）
+## Zone 2: 移动平台 — 冲刺 → 平台加速靠岸（强化理解）
+## Zone 3: 终点碎片
 
 const _Player = preload("res://scripts/player/player.gd")
 
-## 玩家出生点
-const PLAYER_SPAWN := Vector2(100, 500)
-## 坠落线（低于此 y 坐标视为坠崖）
-const FALL_THRESHOLD_Y: float = 750.0
+const PLAYER_SPAWN := Vector2(100, 520)
+const FALL_Y: float = 800.0
+const LEVEL_WIDTH: float = 2800.0
 
 var _player: Node2D = null
-var _platform: AnimatableBody2D = null
-var _platform_start: Vector2 = Vector2.ZERO
+var _resettables: Array[Node] = []
 var _level_done: bool = false
 
 
 func _ready() -> void:
 	_spawn_player()
 	_spawn_hud()
+	_spawn_hints()
 	_spawn_overlay()
 	_spawn_killzone()
-	# 缓存移动平台初始位置
-	_platform = get_node_or_null("MovingPlatform") as AnimatableBody2D
-	if _platform:
-		_platform_start = _platform.global_position
-	# 监听信号
+	_cache_resettables()
 	GameState.puzzle_reset.connect(_on_puzzle_reset)
 	GameState.level_completed.connect(_on_level_completed)
 
 
+# ============================================================
+# 生成
+# ============================================================
+
 func _spawn_player() -> void:
 	var scene: PackedScene = load("res://scenes/player.tscn")
 	if not scene:
-		push_error("无法加载 player.tscn")
 		return
 	_player = scene.instantiate()
 	_player.global_position = PLAYER_SPAWN
@@ -43,9 +44,7 @@ func _spawn_player() -> void:
 func _spawn_hud() -> void:
 	var script: Script = load("res://scripts/ui/relative_clock.gd")
 	if not script:
-		push_error("无法加载 relative_clock.gd")
 		return
-
 	var hud := CanvasLayer.new()
 	hud.name = "HUD"
 	hud.layer = 10
@@ -70,7 +69,6 @@ func _spawn_hud() -> void:
 	speed_label.text = "速度: 0.0% c"
 	speed_label.add_theme_font_size_override("font_size", 14)
 	vbox.add_child(speed_label)
-
 	hud.add_child(vbox)
 
 	var toast := Label.new()
@@ -92,71 +90,76 @@ func _spawn_hud() -> void:
 	toast_timer.one_shot = true
 	toast_timer.wait_time = 3.0
 	hud.add_child(toast_timer)
-
 	if not toast_timer.timeout.is_connected(hud._on_toast_timer_timeout):
 		toast_timer.timeout.connect(hud._on_toast_timer_timeout)
-
 	add_child(hud)
 
 
 func _spawn_overlay() -> void:
-	var overlay_script: Script = load("res://scripts/ui/time_warp_overlay.gd")
-	if not overlay_script:
-		push_error("无法加载 time_warp_overlay.gd")
-		return
-	var overlay := CanvasLayer.new()
-	overlay.set_script(overlay_script)
-	overlay.layer = -1
-	add_child(overlay)
+	var s: Script = load("res://scripts/ui/time_warp_overlay.gd")
+	if s:
+		var o := CanvasLayer.new()
+		o.set_script(s)
+		o.layer = -1
+		add_child(o)
 
 
-## 坠崖检测区 — 平台下方宽大 Area2D，玩家进入即重置
 func _spawn_killzone() -> void:
-	var killzone := Area2D.new()
-	killzone.name = "KillZone"
-	killzone.collision_layer = 1
-	killzone.collision_mask = 2
-	killzone.position = Vector2(640, FALL_THRESHOLD_Y)
-
+	var kz := Area2D.new()
+	kz.name = "KillZone"
+	kz.collision_layer = 1
+	kz.collision_mask = 2
+	kz.position = Vector2(LEVEL_WIDTH / 2.0, FALL_Y)
 	var shape := CollisionShape2D.new()
 	var rect := RectangleShape2D.new()
-	rect.size = Vector2(2000, 200)
+	rect.size = Vector2(LEVEL_WIDTH, 200)
 	shape.shape = rect
-	killzone.add_child(shape)
+	kz.add_child(shape)
+	kz.body_entered.connect(_on_fall)
+	add_child(kz)
 
-	killzone.body_entered.connect(_on_fall)
 
-	add_child(killzone)
 
+func _spawn_hints() -> void:
+	_create_hint("按住 Shift 冲刺 → 闸门加速周期 → 乘隙穿过", Vector2(380, 480))
+	_create_hint("冲刺让平台快点过来 ←", Vector2(750, 470))
+
+func _create_hint(text: String, pos: Vector2) -> void:
+	var label := Label.new()
+	label.text = text
+	label.position = pos
+	label.add_theme_font_size_override("font_size", 14)
+	label.add_theme_color_override("font_color", Color(1, 0.8, 0.3, 0.8))
+	add_child(label)
+func _cache_resettables() -> void:
+	for child in get_children():
+		if child is Node and child.has_method("reset_state"):
+			_resettables.append(child as Node)
 
 # ============================================================
-# 信号回调
+# 信号
 # ============================================================
 
 func _on_fall(body: Node2D) -> void:
 	if _level_done:
 		return
 	if body == _player:
-		_reset_level_positions()
+		_reset_level()
 
 
 func _on_puzzle_reset() -> void:
-	_reset_level_positions()
+	_reset_level()
 
 
-func _on_level_completed(_level_name: String) -> void:
+func _on_level_completed(_name: String) -> void:
 	if _level_done:
 		return
 	_level_done = true
-
-	# 冻结玩家
 	if _player and _player.has_method("set_frozen"):
 		_player.set_frozen(true)
 
-	# 通关提示
 	var msg := Label.new()
-	msg.name = "CompleteMsg"
-	msg.text = "[ 关卡完成: 时间膨胀 ]\n你已理解速度如何弯曲时间"
+	msg.text = "[ 关卡完成: 时间膨胀 ]\n冲刺即时间，静止即永恒"
 	msg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	msg.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	msg.add_theme_font_size_override("font_size", 36)
@@ -164,7 +167,6 @@ func _on_level_completed(_level_name: String) -> void:
 	msg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	var layer := CanvasLayer.new()
-	layer.name = "CompleteLayer"
 	layer.layer = 100
 	layer.add_child(msg)
 	add_child(layer)
@@ -174,12 +176,11 @@ func _on_level_completed(_level_name: String) -> void:
 # 重置
 # ============================================================
 
-func _reset_level_positions() -> void:
+func _reset_level() -> void:
 	TimeManager.reset()
 	if _player:
 		_player.velocity = Vector2.ZERO
 		_player.global_position = PLAYER_SPAWN
-	if _platform:
-		_platform.global_position = _platform_start
-		if _platform.has_method("reset_state"):
-			_platform.reset_state()
+	for node in _resettables:
+		if node.has_method("reset_state"):
+			node.reset_state()

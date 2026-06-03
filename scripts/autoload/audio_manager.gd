@@ -118,11 +118,11 @@ func _generate_frames(count: int) -> PackedVector2Array:
 			var t: float = float(sfx["frame"]) / SAMPLE_RATE
 			var duration: float = float(sfx["total"]) / SAMPLE_RATE
 			var env := _sfx_envelope(t, duration, sfx.get("attack", 0.05), sfx.get("release", 0.1))
-				var freq: float = 0.0
-				if sfx["freq_func"] is Callable:
-					freq = sfx["freq_func"].call(t)
-				else:
-					freq = sfx["freq"]
+			var freq: float = 0.0
+			if sfx["freq_func"] is Callable:
+				freq = sfx["freq_func"].call(t)
+			else:
+				freq = sfx["freq"]
 			var sfx_phase_val: float = sfx["phase"]
 			sample += sin(sfx_phase_val * TAU) * env * sfx["amp"]
 			sfx["phase"] = fmod(sfx_phase_val + freq / SAMPLE_RATE, 1.0)

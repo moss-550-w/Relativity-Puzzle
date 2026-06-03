@@ -1,10 +1,9 @@
-class_name Player
 extends CharacterBody2D
 ## Player — 时空观测员
 ## 铁律：输入处理在 _process（实时），物理计算在 _physics_process
 ## sprint 加速 → scene_time_scale ↑ → 场景物体加速
 
-const SpeedTimeCoupling = preload("res://scripts/mechanics/speed_time_coupling.gd")
+const _STC = preload("res://scripts/mechanics/speed_time_coupling.gd")
 
 
 # ============================================================
@@ -99,7 +98,7 @@ func _apply_movement(delta: float) -> void:
 		# 加速
 		velocity.x = move_toward(velocity.x, target_vx, acceleration * delta)
 		# 检查光速红线
-		if SpeedTimeCoupling.is_over_redline(absf(velocity.x)):
+		if _STC.is_over_redline(absf(velocity.x)):
 			_bounce_from_redline()
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
@@ -107,7 +106,7 @@ func _apply_movement(delta: float) -> void:
 	# 跳跃（实时输入）
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
-			AudioManager.play_sfx("jump")
+		AudioManager.play_sfx("jump")
 
 	move_and_slide()
 
@@ -115,7 +114,7 @@ func _apply_movement(delta: float) -> void:
 ## 光速红线弹回
 func _bounce_from_redline() -> void:
 	# 弹回方向与速度
-	velocity.x = -signf(velocity.x) * SpeedTimeCoupling.SPEED_REDLINE * 0.7
+	velocity.x = -signf(velocity.x) * _STC.SPEED_REDLINE * 0.7
 	# 触发红移信号（M1-2机制就位，视觉效果由Shader层响应）
 	redline_bounced.emit()
 	AudioManager.play_sfx("redline_bounce")
