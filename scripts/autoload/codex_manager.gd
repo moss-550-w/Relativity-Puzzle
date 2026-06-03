@@ -52,6 +52,11 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "旋转黑洞——中心不是奇点，而是环状奇环。能层中时空本身被拖拽旋转。克尔度规(1963)是爱因斯坦场方程的精确解。",
 		"category": "general_relativity"
 	},
+	"ergosphere": {
+		"name": "能层与帧拖拽",
+		"desc": "旋转黑洞外部存在能层——时空本身被拖拽着旋转。在能层内，静止不再是静止：你必须随黑洞一起转动。",
+		"category": "general_relativity"
+	},
 	"ring_singularity": {
 		"name": "奇环与裸奇点",
 		"desc": "克尔黑洞的奇点是环状的——理论上有两个视界。若内视界消失，奇环将裸露在外——宇宙是否允许裸奇点存在？",

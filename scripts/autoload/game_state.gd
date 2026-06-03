@@ -20,6 +20,8 @@ var is_paused: bool = false:
 	set(v):
 		is_paused = v
 		get_tree().paused = v
+## 是否已获得二段跳能力（克尔黑洞 BOSS 关解锁，持久生效）
+var double_jump_unlocked: bool = false
 
 # ---- 信号 ----
 

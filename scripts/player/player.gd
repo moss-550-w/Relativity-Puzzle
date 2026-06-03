@@ -3,6 +3,7 @@ extends CharacterBody2D
 ## 铁律：输入处理在 _process（实时），物理计算在 _physics_process
 ## 长按方向键 → 速度随时长持续累积；Shift → 累积速率倍增，迅速冲高
 ## 速度越高 → scene_time_scale ↑ → 场景物体加速
+## 二段跳：克尔黑洞 BOSS 关解锁，GameState.double_jump_unlocked 持久生效
 
 const _STC = preload("res://scripts/mechanics/speed_time_coupling.gd")
 
@@ -47,6 +48,8 @@ var _visual_root: Node2D = null
 var _hold_dir: float = 0.0
 ## 长按累积出的目标速度（随按住时长增长）
 var _ramped_speed: float = 0.0
+## 剩余跳跃次数（1 = 单跳，2 = 二段跳，由 GameState.double_jump_unlocked 控制）
+var _jumps_remaining: int = 1
 
 
 # ============================================================
@@ -56,6 +59,7 @@ var _ramped_speed: float = 0.0
 func _ready() -> void:
 	_visual_root = get_node_or_null("VisualRoot")
 	_last_safe_position = global_position
+	_jumps_remaining = 2 if GameState.double_jump_unlocked else 1
 
 
 func _process(_delta: float) -> void:
@@ -127,10 +131,19 @@ func _apply_movement(delta: float) -> void:
 		_ramped_speed = 0.0
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 
-	# 跳跃（实时输入）
-	if Input.is_action_just_pressed("jump") and is_on_floor():
-		velocity.y = jump_velocity
-		AudioManager.play_sfx("jump")
+	# 跳跃 — 支持二段跳（GameState.double_jump_unlocked 控制）
+	if Input.is_action_just_pressed("jump"):
+		if is_on_floor():
+			# 着地：重置跳跃次数
+			_jumps_remaining = 2 if GameState.double_jump_unlocked else 1
+			velocity.y = jump_velocity
+			_jumps_remaining -= 1
+			AudioManager.play_sfx("jump")
+		elif _jumps_remaining > 0:
+			# 空中二段跳：略小的上推力
+			velocity.y = jump_velocity * 0.85
+			_jumps_remaining -= 1
+			AudioManager.play_sfx("jump")
 
 	move_and_slide()
 

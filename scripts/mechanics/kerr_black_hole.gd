@@ -249,8 +249,14 @@ func _on_checkpoint(id: String, pos: Vector2) -> void:
 	AudioManager.play_sfx("fragment_collect")
 	# 阶段推进
 	match id:
-		"cp1": current_phase = Phase.TWO_HORIZONS
-		"cp2": current_phase = Phase.THREE_RING
+		"cp1":
+			current_phase = Phase.TWO_HORIZONS
+			if not GameState.double_jump_unlocked:
+				GameState.double_jump_unlocked = true
+			CodexManager.unlock("kerr_black_hole")
+		"cp2":
+			current_phase = Phase.THREE_RING
+			CodexManager.unlock("ergosphere")
 		"core": _complete()
 
 
@@ -269,7 +275,6 @@ func _on_enter_outer(body: Node2D) -> void:
 func _on_enter_inner(body: Node2D) -> void:
 	if body.is_in_group("player"):
 		_apply_gravity(inner_gravity)
-		CodexManager.unlock("kerr_black_hole")
 
 
 func _on_exit_zone(body: Node2D) -> void:
