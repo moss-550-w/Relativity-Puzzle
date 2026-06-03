@@ -1,7 +1,8 @@
 extends CharacterBody2D
 ## Player — 时空观测员
 ## 铁律：输入处理在 _process（实时），物理计算在 _physics_process
-## sprint 加速 → scene_time_scale ↑ → 场景物体加速
+## 长按方向键 → 速度随时长持续累积；Shift → 累积速率倍增，迅速冲高
+## 速度越高 → scene_time_scale ↑ → 场景物体加速
 
 const _STC = preload("res://scripts/mechanics/speed_time_coupling.gd")
 
@@ -11,10 +12,18 @@ const _STC = preload("res://scripts/mechanics/speed_time_coupling.gd")
 # ============================================================
 
 @export_category("Movement")
-@export var walk_speed: float = 200.0
-@export var sprint_speed: float = 600.0
-@export var acceleration: float = 800.0
-@export var friction: float = 600.0
+## 起步速度（刚按下方向键时）
+@export var base_speed: float = 150.0
+## 长按可达的最高速度（接近光速红线）
+@export var max_speed: float = 980.0
+## 长按时速度累积速率（像素/秒²的目标提升）
+@export var ramp_rate: float = 260.0
+## Shift 冲刺时累积速率倍数
+@export var sprint_multiplier: float = 3.5
+## 实际速度趋近目标的加速度
+@export var acceleration: float = 1200.0
+## 松开方向键后的减速
+@export var friction: float = 900.0
 
 @export_category("Jump")
 @export var jump_velocity: float = -400.0
@@ -34,6 +43,10 @@ var _is_sprinting: bool = false
 var _is_frozen: bool = false
 var _last_safe_position: Vector2 = Vector2.ZERO
 var _visual_root: Node2D = null
+## 当前方向（-1/0/1），用于检测换向重置累积
+var _hold_dir: float = 0.0
+## 长按累积出的目标速度（随按住时长增长）
+var _ramped_speed: float = 0.0
 
 
 # ============================================================
@@ -89,18 +102,29 @@ func _apply_movement(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
-	# 水平移动
-	var target_speed: float = sprint_speed if _is_sprinting else walk_speed
 	var input_dir: float = Input.get_axis("move_left", "move_right")
 
 	if input_dir != 0.0:
-		var target_vx: float = input_dir * target_speed
-		# 加速
+		# 换向：重置累积，从起步速度重新积累
+		if input_dir != _hold_dir:
+			_hold_dir = input_dir
+			_ramped_speed = base_speed
+
+		# 长按持续累积目标速度；Shift 让累积速率倍增
+		var rate := ramp_rate * (sprint_multiplier if _is_sprinting else 1.0)
+		_ramped_speed = minf(_ramped_speed + rate * delta, max_speed)
+
+		# 实际速度趋近累积目标
+		var target_vx := input_dir * _ramped_speed
 		velocity.x = move_toward(velocity.x, target_vx, acceleration * delta)
-		# 检查光速红线
+
+		# 光速红线
 		if _STC.is_over_redline(absf(velocity.x)):
 			_bounce_from_redline()
 	else:
+		# 松开方向键：累积清零，速度回落
+		_hold_dir = 0.0
+		_ramped_speed = 0.0
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 
 	# 跳跃（实时输入）
@@ -113,6 +137,8 @@ func _apply_movement(delta: float) -> void:
 
 ## 光速红线弹回
 func _bounce_from_redline() -> void:
+	# 清空累积速度，避免立即再次触发
+	_ramped_speed = base_speed
 	# 弹回方向与速度
 	velocity.x = -signf(velocity.x) * _STC.SPEED_REDLINE * 0.7
 	# 触发红移信号（M1-2机制就位，视觉效果由Shader层响应）
@@ -147,6 +173,8 @@ func set_frozen(frozen: bool) -> void:
 	_is_frozen = frozen
 	if frozen:
 		velocity = Vector2.ZERO
+		_ramped_speed = 0.0
+		_hold_dir = 0.0
 
 
 func get_last_safe_position() -> Vector2:
