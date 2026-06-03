@@ -40,26 +40,29 @@ var _transported: int = 0
 var _completed: bool = false
 
 var _t: float = 0.0
+## 星点背景（预生成，由 _draw 绘制于游戏层之下）
+var _stars: Array = []
 
 
 func _ready() -> void:
+	_init_stars()
 	_build_background()
 	TransitionLayer.fade_in()
 
 
-func _build_background() -> void:
-	var bg: ColorRect = ColorRect.new()
-	bg.set_anchors_preset(PRESET_FULL_RECT)
-	bg.color = Color(0.02, 0.03, 0.08, 1.0)
-	add_child(bg)
-
+func _init_stars() -> void:
 	for i in 40:
-		var dot: ColorRect = ColorRect.new()
-		dot.size = Vector2(1.5, 1.5)
-		dot.position = Vector2(randf_range(0, 1280), randf_range(0, 720))
-		dot.color = Color(0.5, 0.7, 1.0, randf_range(0.08, 0.3))
-		dot.mouse_filter = MOUSE_FILTER_IGNORE
-		add_child(dot)
+		_stars.append({
+			"pos": Vector2(randf_range(0, 1280), randf_range(0, 720)),
+			"a": randf_range(0.08, 0.3),
+		})
+
+
+func _build_background() -> void:
+	# 注意：游戏主体（虫洞口/板/粒子）由本节点 _draw() 绘制，
+	# 父节点 _draw() 在子节点之下绘制，故此处不可再加全屏不透明背景子节点
+	# （否则会完全遮挡 _draw 内容）。背景已由 _draw() 第一行 draw_rect 提供。
+	# 星点用 _draw 绘制以保持在游戏层之下，见 _draw_starfield()。
 
 	# 标题
 	var title: Label = Label.new()
@@ -251,12 +254,18 @@ func _complete() -> void:
 func _draw() -> void:
 	# 整体背景（确保始终有渲染内容）
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.02, 0.03, 0.08, 1.0), true)
+	_draw_starfield()
 	_draw_game_area()
 	_draw_portals()
 	_draw_casimir_plates()
 	_draw_neg_energy_zone()
 	_draw_particles()
 	_draw_labels()
+
+
+func _draw_starfield() -> void:
+	for s in _stars:
+		draw_rect(Rect2(s["pos"], Vector2(1.5, 1.5)), Color(0.5, 0.7, 1.0, s["a"]), true)
 
 
 func _draw_game_area() -> void:
