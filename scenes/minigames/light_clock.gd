@@ -198,6 +198,10 @@ func _build_clocks() -> void:
 	_tick_move_label.add_theme_color_override("font_color", Color(0.6, 0.4, 1.0))
 	add_child(_tick_move_label)
 
+	# 注入自定义 _draw() 到子 Control
+	_inject_draw(_rest_clock, false)
+	_inject_draw(_moving_clock, true)
+
 
 # ============================================================
 # 绘制时钟
@@ -338,10 +342,6 @@ func _update_hud() -> void:
 # 绘制连接
 # ============================================================
 
-func _draw() -> void:
-	pass
-
-
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_DRAW:
 		if _rest_clock:
@@ -349,22 +349,10 @@ func _notification(what: int) -> void:
 		if _moving_clock:
 			_moving_clock.queue_redraw()
 
-	# 自定义绘制两个钟
-	if _rest_clock and _rest_clock.has_method("_draw"):
-		pass  # handled by Control._draw override
-
-	# 给两个 Clock Control 注入 _draw
-	if not _rest_clock.get_meta("_draw_hooked", false):
-		_rest_clock.set_meta("_draw_hooked", true)
-		_inject_draw(_rest_clock, false)
-	if not _moving_clock.get_meta("_draw_hooked", false):
-		_moving_clock.set_meta("_draw_hooked", true)
-		_inject_draw(_moving_clock, true)
-
 
 func _inject_draw(ci: Control, moving: bool) -> void:
 	var s := GDScript.new()
-	var moving_str := "true" if moving else "false"
+	var moving_str: String = "true" if moving else "false"
 	s.source_code = """extends Control
 
 func _draw() -> void:

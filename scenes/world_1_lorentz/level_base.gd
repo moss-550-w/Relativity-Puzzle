@@ -259,6 +259,9 @@ func _unhandled_input(event: InputEvent) -> void:
 # 暂停菜单
 # ============================================================
 
+var _pause_layer: CanvasLayer = null
+
+
 func _toggle_pause() -> void:
 	if _level_done:
 		return
@@ -266,15 +269,17 @@ func _toggle_pause() -> void:
 		_build_pause_menu()
 	var paused: bool = not get_tree().paused
 	get_tree().paused = paused
-	_pause_menu.visible = paused
+	if _pause_layer:
+		_pause_layer.visible = paused
 
 
 func _build_pause_menu() -> void:
-	var cl := CanvasLayer.new()
-	cl.name = "PauseLayer"
-	cl.layer = 200
-	cl.process_mode = Node.PROCESS_MODE_ALWAYS
-	add_child(cl)
+	_pause_layer = CanvasLayer.new()
+	_pause_layer.name = "PauseLayer"
+	_pause_layer.layer = 200
+	_pause_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	_pause_layer.visible = false
+	add_child(_pause_layer)
 
 	# 半透明遮罩
 	var overlay := ColorRect.new()
@@ -282,16 +287,15 @@ func _build_pause_menu() -> void:
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.color = Color(0.0, 0.0, 0.0, 0.55)
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	cl.add_child(overlay)
+	_pause_layer.add_child(overlay)
 
 	_pause_menu = Control.new()
 	_pause_menu.name = "PauseMenu"
 	_pause_menu.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_pause_menu.mouse_filter = Control.MOUSE_FILTER_STOP
-	_pause_menu.visible = false
 	# 挂载 _input 脚本以响应 ESC（暂停后 _unhandled_input 不再触发）
 	_pause_menu.set_script(_make_pause_input_script())
-	cl.add_child(_pause_menu)
+	_pause_layer.add_child(_pause_menu)
 
 	# 面板背景
 	var panel := Panel.new()
