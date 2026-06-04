@@ -34,7 +34,7 @@
 - **4 个世界 · 11 个关卡 + 1 个 BOSS**，约 3–4 小时流程
 - **3 个趣味小游戏**：光钟工坊、虫洞工程师、麦克斯韦妖
 - **2 处隐藏彩蛋**：双生子小屋、物理学家小屋（爱因斯坦 & 霍金对话）
-- **时空图鉴系统**：20+ 物理词条，随解谜逐步解锁
+- **时空图鉴系统**：23 物理词条，各配极简几何图标，随解谜逐步解锁
 - **三种结局**：由玩家的全程行为统计触发，无显式选择按钮
 
 ---
@@ -145,7 +145,7 @@ godot --headless res://scenes/minigames/wormhole_engineer.tscn
 ### 技术栈
 - **引擎**：Godot 4.6（GDScript）
 - **渲染**：GL Compatibility（兼容低端设备）
-- **美术**：程序化绘制（`_draw` / `Polygon2D`）+ 自定义着色器
+- **美术**：程序化绘制（`_draw` / `Polygon2D`）+ 自定义着色器 + 中央调色板统一配色 + 四世界差异化背景网格
 - **音频**：程序化音效合成
 - **分辨率**：1280×720，canvas_items 拉伸
 
@@ -165,11 +165,12 @@ Relativitygame/
 │   └── minigames/             # 光钟工坊、虫洞工程师、麦克斯韦妖
 ├── scripts/
 │   ├── autoload/              # 全局单例（GameState/TimeManager/EntropySystem 等）
-│   ├── player/                # 玩家移动与能力
+│   ├── player/                # 玩家移动、光晕、能力
 │   ├── mechanics/             # 核心物理机制
 │   ├── objects/               # 交互物件（虫洞口、平台、碎片等）
 │   ├── npc/                   # 双生子、爱因斯坦&霍金 NPC
-│   └── ui/                    # 图鉴、相对时钟、转场等
+│   ├── ui/                    # 图鉴、HUD、相对时钟、世界背景、转场
+│   └── palette.gd             # 中央调色板（配色唯一真源）
 ├── resources/codex_entries/   # 图鉴词条数据
 ├── assets/shaders/            # 时间扭曲等着色器
 └── docs/                      # 设计文档、物理参考、术语表
