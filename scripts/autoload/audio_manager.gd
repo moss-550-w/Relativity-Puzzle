@@ -164,10 +164,10 @@ func _generate_frames(count: int) -> PackedVector2Array:
 			var duration: float = float(sfx["total"]) / SAMPLE_RATE
 			var env := _sfx_envelope(t, duration, sfx.get("attack", 0.05), sfx.get("release", 0.1))
 			var freq: float = 0.0
-			if sfx["freq_func"] is Callable:
+			if sfx.get("freq_func") is Callable:
 				freq = sfx["freq_func"].call(t)
 			else:
-				freq = sfx["freq"]
+				freq = sfx.get("freq", 0.0)
 			var sfx_phase_val: float = sfx["phase"]
 			var wave: float
 			if sfx.get("wave_type", "sine") == "noise":

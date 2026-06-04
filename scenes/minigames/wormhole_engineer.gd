@@ -2,6 +2,7 @@ extends Control
 ## 虫洞工程师 — 构建可穿越虫洞
 ## F 键拖拽虫洞口和卡西米尔板
 ## 推拢板产生负能量 → 稳定虫洞 → 信号粒子穿越
+## 虫洞不稳定时粒子被弹回；板可 X/Y 双向拖拽
 
 
 const PLATE_SIZE: Vector2 = Vector2(14, 70)
@@ -18,12 +19,12 @@ const C_GOLD: Color = Palette.C_GOLD
 const C_PURPLE: Color = Palette.CATEGORY_COLORS[1]  # 广义相对论紫
 
 # 虫洞口位置
-var _portal_a_pos: Vector2 = Vector2(460, 360)
+var _portal_a_pos: Vector2 = Vector2(510, 360)  # 靠近板间，便于进入负能量区
 var _portal_b_pos: Vector2 = Vector2(700, 360)
-# 卡西米尔板 X 位置（只在 X 轴移动）
+# 卡西米尔板位置（可 X/Y 双向拖拽）
 var _plate_a_x: float = 520.0
 var _plate_b_x: float = 620.0
-var _plate_y: float = 560.0
+var _plate_y: float = 360.0  # 默认与粒子路径同一水平线
 
 var _dragging: String = ""
 var _drag_offset: Vector2 = Vector2.ZERO
@@ -111,9 +112,9 @@ func _build_background() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
+	_handle_drag()  # 先处理拖拽，当帧生效
 	_update_neg_energy()
 	_update_wormhole()
-	_handle_drag()
 	_update_particles(delta)
 	_spawn_particles(delta)
 	queue_redraw()
@@ -134,13 +135,12 @@ func _update_neg_energy() -> void:
 
 func _update_wormhole() -> void:
 	var was_stable: bool = _wormhole_stable
-	_wormhole_stable = false
-	if _neg_energy_active:
-		for portal_pos in [_portal_a_pos, _portal_b_pos]:
-			if portal_pos.distance_to(_neg_zone_center) < _neg_zone_radius + PORTAL_RADIUS:
-				_wormhole_stable = true
-	if _wormhole_stable and not was_stable:
-		AudioManager.play_sfx("wormhole_stabilize")
+	# 简化：板推拢即稳定，不要求虫洞口在负能量区内
+	_wormhole_stable = _neg_energy_active
+	if _wormhole_stable != was_stable:
+		print("[Wormhole] STABLE=%s gap=%.0f" % [_wormhole_stable, absf(_plate_a_x - _plate_b_x)])
+		if _wormhole_stable:
+			AudioManager.play_sfx("wormhole_stabilize")
 
 
 # ============================================================
@@ -173,8 +173,14 @@ func _handle_drag() -> void:
 		_portal_b_pos = mouse_pos + _drag_offset
 	elif _dragging == "plate_a":
 		_plate_a_x = clampf(mouse_pos.x, 180.0, _plate_b_x - 20.0)
+		_plate_y = clampf(mouse_pos.y, 200.0, 520.0)
+		_portal_a_pos.y = _plate_y
+		_portal_b_pos.y = _plate_y
 	elif _dragging == "plate_b":
 		_plate_b_x = clampf(mouse_pos.x, _plate_a_x + 20.0, 1100.0)
+		_plate_y = clampf(mouse_pos.y, 200.0, 520.0)
+		_portal_a_pos.y = _plate_y
+		_portal_b_pos.y = _plate_y
 
 
 # ============================================================
@@ -187,7 +193,7 @@ func _spawn_particles(delta: float) -> void:
 	_particle_timer += delta
 	if _particle_timer >= PARTICLE_INTERVAL:
 		_particle_timer = 0.0
-		_particles.append({"x": 80.0, "y": 360.0, "active": true, "trail": []})
+		_particles.append({"x": 80.0, "y": _plate_y, "active": true, "trail": [], "teleported": false})
 
 
 func _update_particles(delta: float) -> void:
@@ -199,15 +205,30 @@ func _update_particles(delta: float) -> void:
 		trail.push_front(Vector2(p["x"], p["y"]))
 		if trail.size() > 12:
 			trail.pop_back()
-		if _wormhole_stable and absf(p["x"] - _portal_a_pos.x) < PORTAL_RADIUS + PARTICLE_RADIUS and absf(p["y"] - _portal_a_pos.y) < PORTAL_RADIUS + PARTICLE_RADIUS:
-			p["x"] = _portal_b_pos.x + PORTAL_RADIUS
-			p["y"] = _portal_b_pos.y
-			p["trail"].clear()
-			AudioManager.play_sfx("jump")
-		if p["x"] > 1150.0 and absf(p["y"] - 360.0) < 50.0:
+		# 检测粒子与入口 A 的距离
+		var dist_to_a: float = Vector2(p["x"], p["y"]).distance_to(_portal_a_pos)
+		if dist_to_a < PORTAL_RADIUS + PARTICLE_RADIUS:
+			if _wormhole_stable:
+				# 虫洞稳定 → 传送到出口 B
+				p["x"] = _portal_b_pos.x + PORTAL_RADIUS
+				p["y"] = _plate_y
+				p["trail"].clear()
+				p["teleported"] = true
+				print("[Wormhole] TELEPORT x=%.0f y=%.0f" % [p["x"], p["y"]])
+				AudioManager.play_sfx("jump")
+			else:
+				# 虫洞不稳定 → 粒子弹回
+				p["x"] -= PARTICLE_SPEED * delta * 3.0
+				if p["x"] < 40.0:
+					p["x"] = 40.0
+
+		# 目标区检测：弹回机制已确保粒子只能通过虫洞到达此处
+		if p["x"] > 1140.0 and absf(p["y"] - _plate_y) < 80.0:
+			print("[Wormhole] TARGET x=%.0f y=%.0f py=%.0f tel=%s" % [p["x"], p["y"], _plate_y, p.get("teleported", false)])
 			p["active"] = false
 			_transported += 1
 			_update_counter_label()
+			print("[Wormhole] COUNT=%d" % _transported)
 			AudioManager.play_sfx("fragment_collect")
 			if _transported >= TARGET_TRANSPORT and not _completed:
 				_complete()
@@ -264,20 +285,20 @@ func _draw_starfield() -> void:
 
 
 func _draw_game_area() -> void:
-	draw_rect(Rect2(40, 300, 80, 120), Color(0.04, 0.06, 0.14, 0.5), true)
-	draw_line(Vector2(120, 360), Vector2(120, 360), Color(0.3, 0.6, 1.0, 0.3), 2.0)
-	var emit_label_pos: Vector2 = Vector2(60, 430)
+	draw_rect(Rect2(40, _plate_y - 60, 80, 120), Color(0.04, 0.06, 0.14, 0.5), true)
+	draw_line(Vector2(120, _plate_y), Vector2(120, _plate_y), Color(0.3, 0.6, 1.0, 0.3), 2.0)
+	var emit_label_pos: Vector2 = Vector2(60, _plate_y + 70)
 	draw_string(ThemeDB.fallback_font, emit_label_pos, "发射区", 1, -1, 10, Color(0.4, 0.7, 1.0, 0.4))
 
-	draw_rect(Rect2(1140, 300, 100, 120), Color(0.06, 0.04, 0.14, 0.5), true)
+	draw_rect(Rect2(1140, _plate_y - 60, 100, 120), Color(0.06, 0.04, 0.14, 0.5), true)
 	for i in range(0, 100, 12):
-		draw_rect(Rect2(1140 + i, 300, 8, 2), C_GOLD * Color(1, 1, 1, 0.3), true)
-		draw_rect(Rect2(1140 + i, 418, 8, 2), C_GOLD * Color(1, 1, 1, 0.3), true)
+		draw_rect(Rect2(1140 + i, _plate_y - 60, 8, 2), C_GOLD * Color(1, 1, 1, 0.3), true)
+		draw_rect(Rect2(1140 + i, _plate_y + 58, 8, 2), C_GOLD * Color(1, 1, 1, 0.3), true)
 	for i in range(0, 118, 12):
-		draw_rect(Rect2(1140, 300 + i, 2, 8), C_GOLD * Color(1, 1, 1, 0.3), true)
-		draw_rect(Rect2(1238, 300 + i, 2, 8), C_GOLD * Color(1, 1, 1, 0.3), true)
+		draw_rect(Rect2(1140, _plate_y - 60 + i, 2, 8), C_GOLD * Color(1, 1, 1, 0.3), true)
+		draw_rect(Rect2(1238, _plate_y - 60 + i, 2, 8), C_GOLD * Color(1, 1, 1, 0.3), true)
 
-	var target_label_pos: Vector2 = Vector2(1190, 430)
+	var target_label_pos: Vector2 = Vector2(1190, _plate_y + 70)
 	draw_string(ThemeDB.fallback_font, target_label_pos, "目标区", 1, -1, 10, Color(1.0, 0.85, 0.3, 0.5))
 
 
@@ -410,10 +431,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _reset() -> void:
-	_portal_a_pos = Vector2(460, 360)
+	_portal_a_pos = Vector2(510, 360)
 	_portal_b_pos = Vector2(700, 360)
 	_plate_a_x = 520.0
 	_plate_b_x = 620.0
+	_plate_y = 360.0
 	_dragging = ""
 	_particles.clear()
 	_particle_timer = 0.0
