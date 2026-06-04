@@ -305,7 +305,7 @@ func _build_minigame_section() -> void:
 	panel.add_child(sub)
 
 	# 小游戏按钮
-	var mg_ids: Array = ["light_clock", "wormhole_engineer"]
+	var mg_ids: Array = ["light_clock", "wormhole_engineer", "maxwell_demon"]
 	var btn_width: float = 220.0
 	var btn_height: float = 44.0
 	var start_x: float = 280.0

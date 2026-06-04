@@ -112,6 +112,16 @@ const WORLD_1_ENTRIES: Dictionary = {
 		"desc": "在世界尽头的静止空间中，两位巨匠仍在争论时间的本质。爱因斯坦相信时空是光滑的几何，霍金则看到量子泡沫中的信息悖论。科学，永远是一场未完成的对话。",
 		"category": "entropy_cosmology"
 	},
+	"maxwell_demon": {
+		"name": "麦克斯韦妖",
+		"desc": "1867 年麦克斯韦设想一个能逐个分拣分子的小妖，似乎能让熵自发减少、违反第二定律——它困扰物理学界近一个世纪。",
+		"category": "entropy_cosmology"
+	},
+	"landauer_principle": {
+		"name": "兰道尔原理",
+		"desc": "小妖的破绽在于记忆：擦除 1 bit 信息至少耗散 kT·ln2 热量（Landauer 1961，Bennett 1982）。计入信息熵后，总熵从不下降，第二定律安然无恙。",
+		"category": "entropy_cosmology"
+	},
 }
 
 # ---- 状态 ----

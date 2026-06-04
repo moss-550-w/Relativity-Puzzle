@@ -9,6 +9,7 @@ const ENTRY_ORDER: Array[String] = [
 	"kerr_black_hole", "ergosphere", "ring_singularity",
 	"casimir_effect", "quantum_vacuum", "chronology_protection",
 	"entropy_arrow", "block_universe", "wheeler_dewitt", "time_illusion",
+	"maxwell_demon", "landauer_principle",
 	"physicists_cabin",
 ]
 
@@ -26,6 +27,7 @@ const ENTRY_CATEGORY: Dictionary = {
 	"kerr_black_hole": 1, "ergosphere": 1, "ring_singularity": 1,
 	"casimir_effect": 2, "quantum_vacuum": 2, "chronology_protection": 2,
 	"entropy_arrow": 3, "block_universe": 3, "wheeler_dewitt": 3, "time_illusion": 3,
+	"maxwell_demon": 3, "landauer_principle": 3,
 	"physicists_cabin": 3,
 }
 
@@ -519,6 +521,8 @@ func _entry_fallback(entry_id: String) -> Dictionary:
 		"block_universe": {"name": "块状宇宙", "desc": "", "category": "entropy_cosmology"},
 		"wheeler_dewitt": {"name": "惠勒-德维特方程", "desc": "", "category": "entropy_cosmology"},
 		"time_illusion": {"name": "时间的主观性错觉", "desc": "", "category": "entropy_cosmology"},
+		"maxwell_demon": {"name": "麦克斯韦妖", "desc": "", "category": "entropy_cosmology"},
+		"landauer_principle": {"name": "兰道尔原理", "desc": "", "category": "entropy_cosmology"},
 		"light_clock": {"name": "光钟与时间膨胀", "desc": "", "category": "special_relativity"},
 		"traversable_wormhole": {"name": "可穿越虫洞", "desc": "", "category": "general_relativity"},
 		"physicists_cabin": {"name": "物理学家的午后", "desc": "", "category": "entropy_cosmology"},

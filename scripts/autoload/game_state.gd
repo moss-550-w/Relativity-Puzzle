@@ -76,6 +76,13 @@ const MINIGAME_REGISTRY: Dictionary = {
 		"codex": "traversable_wormhole",
 		"color": Color(0.6, 0.4, 1.0),
 	},
+	"maxwell_demon": {
+		"name": "麦克斯韦妖",
+		"subtitle": "熵、信息与第二定律",
+		"scene": "res://scenes/minigames/maxwell_demon.tscn",
+		"codex": "maxwell_demon",
+		"color": Color(1.0, 0.7, 0.3),
+	},
 }
 
 
