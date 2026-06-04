@@ -423,14 +423,15 @@ func _make_entry_card(entry_id: String, data: Dictionary, unlocked: bool) -> VBo
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 12)
 
-	var icon := Label.new()
-	if unlocked:
-		icon.text = "◆"
-		icon.add_theme_color_override("font_color", Color(1.0, 0.85, 0.3, 0.9))
-	else:
-		icon.text = "◇"
-		icon.add_theme_color_override("font_color", Color(0.25, 0.28, 0.35, 0.5))
-	icon.add_theme_font_size_override("font_size", 18)
+	# 分类色（图标 + 标签共用）
+	var cat_idx: int = ENTRY_CATEGORY.get(entry_id, 0)
+	var cat_color: Color = CATEGORIES[cat_idx]["color"]
+
+	# 极简词汇图标（替代原 ◆/◇ 文本）
+	var icon := CodexIcon.new()
+	icon.size = Vector2(28, 28)
+	icon.mouse_filter = MOUSE_FILTER_IGNORE
+	icon.setup(entry_id, unlocked, cat_color)
 	header.add_child(icon)
 
 	var name_label := Label.new()
@@ -444,8 +445,6 @@ func _make_entry_card(entry_id: String, data: Dictionary, unlocked: bool) -> VBo
 	header.add_child(name_label)
 
 	# 分类标签
-	var cat_idx: int = ENTRY_CATEGORY.get(entry_id, 0)
-	var cat_color: Color = CATEGORIES[cat_idx]["color"]
 	var tag := Label.new()
 	tag.text = CATEGORIES[cat_idx]["name"]
 	tag.add_theme_font_size_override("font_size", 10)
