@@ -36,22 +36,31 @@ const _MUSIC_MODES := {
 
 ## 各世界主旋律 pattern 库（一小节 = 16 个 16 分音符；数值为音阶级数，REST 为休止）
 ## 级数可超出音阶长度，自动按八度叠加（如五声音阶 deg=5 → 高八度根音）
+## 每世界 4 段 = 4 小节乐句（陈述→应答→发展→收束），音序器按小节轮播
 const _MUSIC_PATTERNS := {
-	1: [
-		[0, REST, 2, 4, REST, 4, 5, REST, 7, REST, 5, 4, 2, REST, 0, REST],
-		[4, REST, 5, 7, REST, 9, 7, REST, 5, 4, REST, 2, 4, REST, 2, 0],
+	1: [  # 洛伦兹平原：明亮跳跃，整体上行后回落
+		[0, REST, 2, 4, REST, 4, 5, REST, 7, REST, 5, 4, 2, REST, 0, REST],     # 陈述
+		[4, REST, 5, 7, REST, 9, 7, REST, 5, 4, REST, 2, 4, REST, 2, 0],        # 应答（更高）
+		[5, REST, 7, REST, 9, REST, 8, 7, REST, 5, 7, REST, 5, 4, REST, 2],     # 发展（切分上行）
+		[7, 5, REST, 4, 2, REST, 0, REST, 2, REST, 0, REST, REST, 0, REST, REST], # 收束（下行归位）
 	],
-	2: [
+	2: [  # 引力深渊：稀疏低沉，渴望式上行后沉降
 		[0, REST, REST, 2, REST, REST, 3, REST, 2, REST, REST, 0, REST, REST, REST, REST],
 		[3, REST, REST, 4, REST, 3, REST, 2, REST, REST, 0, REST, REST, REST, REST, REST],
+		[4, REST, REST, 5, REST, REST, 4, REST, REST, 3, REST, REST, 2, REST, REST, REST],
+		[2, REST, REST, 1, REST, REST, 0, REST, REST, REST, 0, REST, REST, REST, REST, REST],
 	],
-	3: [
+	3: [  # 量子泡沫：流动闪烁，#4 色彩音营造迷离感
 		[0, 2, REST, 4, 6, REST, 7, REST, 6, 4, REST, 2, REST, 4, REST, REST],
 		[4, REST, 6, REST, 7, 9, REST, 7, REST, 6, REST, 4, 2, REST, 0, REST],
+		[7, REST, 9, REST, 11, REST, 9, 7, REST, 9, REST, 7, 6, REST, 4, REST],   # 高区闪烁
+		[6, REST, 4, REST, 3, REST, 2, REST, 4, REST, 2, REST, 0, REST, 2, REST], # 漂浮不解决
 	],
-	4: [
+	4: [  # 熵之终焉：极稀疏全音阶，悬浮飘移、永不解决
 		[0, REST, REST, REST, 3, REST, REST, REST, 2, REST, REST, REST, 4, REST, REST, REST],
 		[5, REST, REST, 4, REST, REST, 3, REST, REST, 2, REST, REST, REST, 0, REST, REST],
+		[2, REST, REST, REST, 4, REST, REST, REST, 5, REST, REST, REST, 6, REST, REST, REST],
+		[4, REST, REST, REST, 2, REST, REST, REST, 0, REST, REST, REST, REST, REST, REST, REST],
 	],
 }
 
