@@ -13,9 +13,9 @@ const TARGET_TRANSPORT: int = 3
 const PLATE_THRESHOLD: float = 80.0
 const GRAB_RANGE: float = 100.0
 
-const C_CYAN: Color = Color(0.2, 0.9, 1.0)
-const C_GOLD: Color = Color(1.0, 0.85, 0.3)
-const C_PURPLE: Color = Color(0.6, 0.4, 1.0)
+const C_CYAN: Color = Palette.C_CYAN
+const C_GOLD: Color = Palette.C_GOLD
+const C_PURPLE: Color = Palette.CATEGORY_COLORS[1]  # 广义相对论紫
 
 # 虫洞口位置
 var _portal_a_pos: Vector2 = Vector2(460, 360)
@@ -51,11 +51,7 @@ func _ready() -> void:
 
 
 func _init_stars() -> void:
-	for i in 40:
-		_stars.append({
-			"pos": Vector2(randf_range(0, 1280), randf_range(0, 720)),
-			"a": randf_range(0.08, 0.3),
-		})
+	_stars = Palette.make_stars(40, 1280.0, 720.0)
 
 
 func _build_background() -> void:
@@ -264,8 +260,7 @@ func _draw() -> void:
 
 
 func _draw_starfield() -> void:
-	for s in _stars:
-		draw_rect(Rect2(s["pos"], Vector2(1.5, 1.5)), Color(0.5, 0.7, 1.0, s["a"]), true)
+	Palette.draw_starfield(self, _stars)
 
 
 func _draw_game_area() -> void:

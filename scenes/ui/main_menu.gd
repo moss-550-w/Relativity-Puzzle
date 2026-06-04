@@ -66,7 +66,7 @@ func _build_background() -> void:
 		var dot := ColorRect.new()
 		dot.size = Vector2(randf_range(1.5, 3.5), randf_range(1.5, 3.5))
 		dot.position = Vector2(randf_range(0, 1280), randf_range(0, 720))
-		dot.color = Color(0.5, 0.7, 1.0, randf_range(0.15, 0.6))
+		dot.color = Color(Palette.STAR_COLOR.r, Palette.STAR_COLOR.g, Palette.STAR_COLOR.b, randf_range(0.15, 0.6))
 		dot.mouse_filter = MOUSE_FILTER_IGNORE
 		dot.set_meta("speed", randf_range(8.0, 25.0))
 		dot.set_meta("phase", randf() * TAU)
@@ -98,7 +98,7 @@ func _build_title() -> void:
 	_title_label.position = Vector2(-300, 100)
 	_title_label.size = Vector2(600, 80)
 	_title_label.add_theme_font_size_override("font_size", 52)
-	_title_label.add_theme_color_override("font_color", Color(0.2, 0.8, 1.0, 1.0))
+	_title_label.add_theme_color_override("font_color", Palette.C_CYAN)
 	add_child(_title_label)
 
 	var subtitle := Label.new()
@@ -126,7 +126,7 @@ func _build_title() -> void:
 	var glow_tween := create_tween()
 	glow_tween.set_loops()
 	glow_tween.tween_property(_title_label, "theme_override_colors/font_color", Color(0.4, 1.0, 1.0, 1.0), 2.0)
-	glow_tween.tween_property(_title_label, "theme_override_colors/font_color", Color(0.2, 0.8, 1.0, 1.0), 2.0)
+	glow_tween.tween_property(_title_label, "theme_override_colors/font_color", Palette.C_CYAN, 2.0)
 
 
 # ============================================================

@@ -44,6 +44,7 @@ var _is_sprinting: bool = false
 var _is_frozen: bool = false
 var _last_safe_position: Vector2 = Vector2.ZERO
 var _visual_root: Node2D = null
+var _glow: Node2D = null
 ## 当前方向（-1/0/1），用于检测换向重置累积
 var _hold_dir: float = 0.0
 ## 长按累积出的目标速度（随按住时长增长）
@@ -58,6 +59,7 @@ var _jumps_remaining: int = 1
 
 func _ready() -> void:
 	_visual_root = get_node_or_null("VisualRoot")
+	_glow = get_node_or_null("PlayerGlow")
 	_last_safe_position = global_position
 	_jumps_remaining = 2 if GameState.double_jump_unlocked else 1
 
@@ -79,6 +81,8 @@ func _physics_process(delta: float) -> void:
 	TimeManager.update_from_player_speed(velocity.length())
 	# 运动方向尺缩
 	_update_length_contraction()
+	# 速度光晕（不随尺缩变形，Glow 为 VisualRoot 的兄弟节点）
+	_update_glow()
 	# 更新安全位置（在地上的位置为安全点）
 	if is_on_floor():
 		_last_safe_position = global_position
@@ -99,6 +103,11 @@ func _handle_input() -> void:
 	# 观测键（E）：延长量子裂隙
 	if Input.is_action_just_pressed("observe"):
 		_try_extend_fissures()
+		_trigger_observe_flash()
+
+	# 抓取键视觉反馈
+	if Input.is_action_just_pressed("grab"):
+		_trigger_grab_flash()
 
 
 # ============================================================
@@ -180,6 +189,25 @@ func _update_length_contraction() -> void:
 	# 横向压缩（运动方向），纵向不变
 	_visual_root.scale.x = squeeze
 	_visual_root.scale.y = 1.0
+
+
+func _update_glow() -> void:
+	if not _glow or not _glow.has_method("set_state"):
+		return
+	var speed: float = velocity.length()
+	var sr: float = speed / _STC.LIGHT_SPEED
+	var rr: float = _STC.get_redline_ratio(speed)
+	_glow.set_state(sr, rr, Time.get_ticks_msec() / 1000.0)
+
+
+func _trigger_observe_flash() -> void:
+	if _glow and _glow.has_method("trigger_observe_flash"):
+		_glow.trigger_observe_flash()
+
+
+func _trigger_grab_flash() -> void:
+	if _glow and _glow.has_method("trigger_grab_flash"):
+		_glow.trigger_grab_flash()
 
 
 # ============================================================

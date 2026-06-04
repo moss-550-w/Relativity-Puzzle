@@ -27,6 +27,7 @@ var _pause_menu: Control = null
 
 
 func _ready() -> void:
+	_spawn_background()
 	_spawn_player()
 	_spawn_hud()
 	_spawn_hints()
@@ -71,6 +72,19 @@ func _spawn_hud() -> void:
 	hud.layer = 10
 	hud.set_script(script)
 	add_child(hud)
+
+
+func _spawn_background() -> void:
+	var s: Script = load("res://scripts/ui/world_backdrop.gd")
+	if s:
+		var bg_layer := CanvasLayer.new()
+		bg_layer.layer = -3  # 底色，在 time_warp(-1) 和关卡(0)之下；W4 昼夜(-2)叠加其上
+		bg_layer.name = "WorldBackdropLayer"
+		var bg := Node2D.new()
+		bg.name = "WorldBackdrop"
+		bg.set_script(s)
+		bg_layer.add_child(bg)
+		add_child(bg_layer)
 
 
 func _spawn_overlay() -> void:
@@ -164,11 +178,12 @@ func _on_level_completed(_name: String) -> void:
 	panel.size = Vector2(600, 400)
 	var psb := StyleBoxFlat.new()
 	psb.bg_color = Color(0.03, 0.06, 0.14, 0.95)
-	psb.border_color = Color(0.2, 0.8, 1.0, 0.6)
+	var accent: Color = Palette.world_accent(GameState.current_world)
+	psb.border_color = Color(accent.r, accent.g, accent.b, 0.6)
 	psb.set_border_width_all(2)
 	psb.border_width_left = 4
 	psb.set_corner_radius_all(10)
-	psb.shadow_color = Color(0.1, 0.6, 1.0, 0.25)
+	psb.shadow_color = Color(accent.r, accent.g, accent.b, 0.25)
 	psb.shadow_size = 20
 	panel.add_theme_stylebox_override("panel", psb)
 	_complete_layer.add_child(panel)
@@ -180,7 +195,7 @@ func _on_level_completed(_name: String) -> void:
 	title.size = Vector2(600, 40)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 30)
-	title.add_theme_color_override("font_color", Color(0.2, 0.8, 1.0, 1.0))
+	title.add_theme_color_override("font_color", Color(accent.r, accent.g, accent.b, 1.0))
 	panel.add_child(title)
 
 	# 完成文案
@@ -304,10 +319,11 @@ func _build_pause_menu() -> void:
 	panel.size = Vector2(400, 340)
 	var psb := StyleBoxFlat.new()
 	psb.bg_color = Color(0.03, 0.06, 0.14, 0.95)
-	psb.border_color = Color(0.2, 0.6, 1.0, 0.5)
+	var paccent: Color = Palette.world_accent(GameState.current_world)
+	psb.border_color = Color(paccent.r, paccent.g, paccent.b, 0.5)
 	psb.set_border_width_all(2)
 	psb.set_corner_radius_all(10)
-	psb.shadow_color = Color(0.1, 0.4, 0.9, 0.3)
+	psb.shadow_color = Color(paccent.r, paccent.g, paccent.b, 0.3)
 	psb.shadow_size = 20
 	panel.add_theme_stylebox_override("panel", psb)
 	_pause_menu.add_child(panel)
@@ -319,7 +335,7 @@ func _build_pause_menu() -> void:
 	title.size = Vector2(400, 36)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 26)
-	title.add_theme_color_override("font_color", Color(0.2, 0.8, 1.0, 1.0))
+	title.add_theme_color_override("font_color", Color(paccent.r, paccent.g, paccent.b, 1.0))
 	panel.add_child(title)
 
 	# 按钮

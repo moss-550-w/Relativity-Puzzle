@@ -9,12 +9,12 @@ const Player = preload("res://scripts/player/player.gd")
 const SpeedTimeCoupling = preload("res://scripts/mechanics/speed_time_coupling.gd")
 const HudGauge = preload("res://scripts/ui/hud_gauge.gd")
 
-# 配色
-const C_CYAN := Color(0.2, 0.9, 1.0)
-const C_BLUE := Color(0.35, 0.55, 1.0)
-const C_RED := Color(1.0, 0.25, 0.2)
-const C_PANEL_BG := Color(0.03, 0.07, 0.12, 0.78)
-const C_PANEL_EDGE := Color(0.2, 0.8, 1.0, 0.55)
+# 配色（引用中央调色板）
+const C_CYAN := Palette.C_CYAN
+const C_BLUE := Palette.C_BLUE
+const C_RED := Palette.C_RED
+const C_PANEL_BG := Palette.C_PANEL_BG
+const C_PANEL_EDGE := Palette.C_PANEL_EDGE
 
 # 节点引用
 var _gauge: Control

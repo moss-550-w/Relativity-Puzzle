@@ -8,10 +8,10 @@ extends Control
 ## 以免污染世界4正式关卡的熵状态（向下兼容，互不干扰）。
 
 
-const C_CYAN: Color = Color(0.2, 0.9, 1.0)   # 冷 / 慢
-const C_RED: Color = Color(1.0, 0.35, 0.28)  # 热 / 快
-const C_GOLD: Color = Color(1.0, 0.85, 0.3)  # 成功
-const C_DIM: Color = Color(0.4, 0.5, 0.7)
+const C_CYAN: Color = Palette.C_CYAN   # 冷 / 慢
+const C_RED: Color = Palette.C_RED     # 热 / 快
+const C_GOLD: Color = Palette.C_GOLD   # 成功
+const C_DIM: Color = Palette.C_DIM
 
 # 仿真箱（左=冷腔 / 右=热腔，中央隔墙在 WALL_X）
 const BOX: Rect2 = Rect2(300, 124, 680, 468)   # left=300 right=980 top=124 bottom=592
@@ -55,11 +55,7 @@ func _ready() -> void:
 
 
 func _init_stars() -> void:
-	for i in 48:
-		_stars.append({
-			"pos": Vector2(randf_range(0, 1280), randf_range(0, 720)),
-			"a": randf_range(0.08, 0.3),
-		})
+	_stars = Palette.make_stars(48, 1280.0, 720.0)
 
 
 func _spawn_particles() -> void:
@@ -294,8 +290,7 @@ func _draw() -> void:
 
 
 func _draw_starfield() -> void:
-	for s in _stars:
-		draw_rect(Rect2(s["pos"], Vector2(1.5, 1.5)), Color(0.5, 0.7, 1.0, s["a"]), true)
+	Palette.draw_starfield(self, _stars)
 
 
 func _draw_chambers() -> void:
@@ -376,8 +371,8 @@ func _draw_hud_panel() -> void:
 	# 面板背景
 	var panel: Rect2 = Rect2(12, 12, 1256, 96)
 	draw_rect(panel, Color(0.03, 0.07, 0.12, 0.82), true)
-	draw_rect(panel, Color(0.2, 0.8, 1.0, 0.35), false, 1.0)
-	draw_rect(Rect2(12, 12, 4, 96), Color(0.2, 0.8, 1.0, 0.5), true)
+	draw_rect(panel, Palette.C_PANEL_EDGE, false, 1.0)
+	draw_rect(Rect2(12, 12, 4, 96), Palette.C_PANEL_EDGE, true)
 
 	# 记忆缓冲
 	draw_string(font, Vector2(28, 74), "记忆缓冲", 0, -1, 13, C_DIM)

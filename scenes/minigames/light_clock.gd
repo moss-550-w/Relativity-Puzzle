@@ -8,9 +8,9 @@ extends Control
 const HudGauge = preload("res://scripts/ui/hud_gauge.gd")
 const STC = preload("res://scripts/mechanics/speed_time_coupling.gd")
 
-const C_CYAN := Color(0.2, 0.9, 1.0)
-const C_GOLD := Color(1.0, 0.85, 0.3)
-const C_RED := Color(1.0, 0.25, 0.2)
+const C_CYAN := Palette.C_CYAN
+const C_GOLD := Palette.C_GOLD
+const C_RED := Palette.C_RED
 
 const MIRROR_LENGTH: float = 180.0
 const MIRROR_GAP: float = 200.0
@@ -57,7 +57,7 @@ func _build_background() -> void:
 		var dot := ColorRect.new()
 		dot.size = Vector2(1.5, 1.5)
 		dot.position = Vector2(randf_range(0, 1280), randf_range(0, 720))
-		dot.color = Color(0.5, 0.7, 1.0, randf_range(0.08, 0.3))
+		dot.color = Color(Palette.STAR_COLOR.r, Palette.STAR_COLOR.g, Palette.STAR_COLOR.b, randf_range(0.08, 0.3))
 		dot.mouse_filter = MOUSE_FILTER_IGNORE
 		add_child(dot)
 
@@ -70,7 +70,7 @@ func _build_hud() -> void:
 	panel.size = Vector2(1000, 56)
 	var psb := StyleBoxFlat.new()
 	psb.bg_color = Color(0.03, 0.07, 0.12, 0.82)
-	psb.border_color = Color(0.2, 0.8, 1.0, 0.4)
+	psb.border_color = Palette.C_PANEL_EDGE
 	psb.set_border_width_all(2)
 	psb.border_width_left = 4
 	psb.set_corner_radius_all(6)

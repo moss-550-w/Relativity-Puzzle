@@ -13,6 +13,10 @@ script = ExtResource("1_player")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_body")
 
+[node name="PlayerGlow" type="Node2D" parent="."]
+z_index = -1
+script = load("res://scripts/player/player_glow.gd")
+
 [node name="VisualRoot" type="Node2D" parent="."]
 
 [node name="Body" type="Polygon2D" parent="VisualRoot"]

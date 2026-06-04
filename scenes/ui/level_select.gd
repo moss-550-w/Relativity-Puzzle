@@ -3,11 +3,11 @@ extends Control
 ## 程序化构建：星空背景、世界面板、关卡按钮、进度标记
 
 
-const C_CYAN := Color(0.2, 0.9, 1.0)
-const C_GOLD := Color(1.0, 0.85, 0.3)
-const C_DIM := Color(0.25, 0.28, 0.35, 0.5)
-const C_PANEL_BG := Color(0.03, 0.07, 0.12, 0.82)
-const C_PANEL_EDGE := Color(0.2, 0.8, 1.0, 0.4)
+const C_CYAN := Palette.C_CYAN
+const C_GOLD := Palette.C_GOLD
+const C_DIM := Palette.C_DIM
+const C_PANEL_BG := Palette.C_PANEL_BG
+const C_PANEL_EDGE := Palette.C_PANEL_EDGE
 
 var _particles: Array = []
 var _t: float = 0.0
@@ -48,7 +48,7 @@ func _build_background() -> void:
 		var dot := ColorRect.new()
 		dot.size = Vector2(randf_range(1.5, 3.5), randf_range(1.5, 3.5))
 		dot.position = Vector2(randf_range(0, 1280), randf_range(0, 720))
-		dot.color = Color(0.5, 0.7, 1.0, randf_range(0.1, 0.5))
+		dot.color = Color(Palette.STAR_COLOR.r, Palette.STAR_COLOR.g, Palette.STAR_COLOR.b, randf_range(0.1, 0.5))
 		dot.mouse_filter = MOUSE_FILTER_IGNORE
 		dot.set_meta("speed", randf_range(6.0, 20.0))
 		dot.set_meta("phase", randf() * TAU)
