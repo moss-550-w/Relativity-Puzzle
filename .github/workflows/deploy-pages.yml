@@ -1,0 +1,78 @@
+name: Deploy to GitHub Pages
+
+# 触发：推送到 main，或在 Actions 页手动触发
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# GitHub Pages 官方部署链路所需权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只跑一个 Pages 部署；不取消进行中的部署（避免半成品上线）
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # ---------- 构建：用 Godot headless 导出 Web 版 ----------
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Godot 版本（须与本地编辑器一致；可改为 4.6.3 等维护版）
+      GODOT_VERSION: "4.6"
+      # export_presets.cfg 中的 Web 预设名
+      EXPORT_PRESET: "Web"
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 下载 Godot 与导出模板
+        run: |
+          set -euo pipefail
+          BASE="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          wget -qO godot.zip      "${BASE}/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          wget -qO templates.tpz  "${BASE}/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          unzip -q godot.zip
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          chmod +x godot
+          # 模板须置于 引擎期望路径：~/.local/share/godot/export_templates/<版本>.stable/
+          TEMPLATE_DIR="${HOME}/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "${TEMPLATE_DIR}"
+          unzip -q templates.tpz
+          mv templates/* "${TEMPLATE_DIR}/"
+
+      - name: 导入资源
+        # 首次 CI 上 .godot 缓存与 .import 不存在，须先导入；
+        # import 阶段的非致命警告不应中断流水线，真正的成败由导出步骤判定
+        run: ./godot --headless --import || true
+
+      - name: 导出 Web 版本
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          # 命令行第三参数覆盖预设的 export_path，统一输出为 GitHub Pages 入口 index.html
+          ./godot --headless --export-release "${EXPORT_PRESET}" build/web/index.html
+          # 绕过 Jekyll 处理（避免下划线开头资源被忽略），保险措施
+          touch build/web/.nojekyll
+          ls -lh build/web
+
+      - name: 上传 Pages 构建产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  # ---------- 部署：发布到 GitHub Pages ----------
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
