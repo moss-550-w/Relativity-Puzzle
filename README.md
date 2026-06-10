@@ -6,6 +6,8 @@
 
 **核心准则**：玩家在解开谜题的瞬间，应该已经直觉性地理解了背后的物理。
 
+> 🎮 **[点此在线试玩（浏览器直接运行，无需下载）](https://moss-550-w.github.io/Relativity-Puzzle/)**
+
 ---
 
 ## 目录
@@ -126,6 +128,14 @@
 ---
 
 ## 运行与开发
+
+### 在线游玩（推荐）
+
+浏览器直接打开，无需安装：
+
+**https://moss-550-w.github.io/Relativity-Puzzle/**
+
+每次推送 `main` 分支，由 GitHub Actions 自动导出 Web 版并部署到 GitHub Pages（工作流见 `.github/workflows/deploy-pages.yml`）。
 
 ### 环境要求
 - [Godot Engine 4.4+](https://godotengine.org)（项目当前基于 4.6，GL Compatibility 渲染后端）
