@@ -80,6 +80,10 @@ reset_puzzle={
 2d_physics/layer_2="player"
 2d_physics/layer_3="platform"
 
+[gui]
+
+theme/custom="res://assets/themes/chinese_theme.tres"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
